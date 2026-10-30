@@ -9,3 +9,6 @@
 
 ### Publish submitted
 - `npm publish --tag next` exit 0; shasum `595e6cbf5ef6febb3560fe62b27885ad9e14de87`; registry propagation pending.
+
+### Verified
+- dist-tags latest/next alpha.0; registry tarball install/layer passed.

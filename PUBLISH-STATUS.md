@@ -5,3 +5,7 @@
 - npm publish exit 0; shasum `595e6cbf5ef6febb3560fe62b27885ad9e14de87`.
 - First-package registry placeholder; verify `dist-tags` and exact tarball before announcing.
 - No unpublish/deprecate.
+
+### Verified 2026-10-31T07:06+08:00
+- `dist-tags`: latest/next `0.1.0-alpha.0`.
+- Registry tarball install into a temp DSH profile passed; layer contains `dsh-ghg`.
