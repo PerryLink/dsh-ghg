@@ -1,0 +1,8 @@
+Third-party notices for @perrylink/dsh-ghg
+
+- fflate (MIT)
+- zod (MIT)
+- xlsx (Apache-2.0)
+
+No customer bill, firm report or factor library is included. The electricity
+factor is a public reference, not assurance-grade.

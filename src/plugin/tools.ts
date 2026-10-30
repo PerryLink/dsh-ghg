@@ -1,0 +1,122 @@
+import { createHash } from 'node:crypto'
+import { mkdir, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import * as XLSX from 'xlsx'
+import { defineTool } from '@deepseek-ai/dsh-tools'
+import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv } from '../core/ghg.js'
+import { newId, type ActivityRecord, type FacilityRecord, type LineRecord, type Table } from './storage.js'
+
+export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string }
+const text = (value: string) => [{ type: 'text' as const, text: value }]
+const sha256 = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
+const now = () => new Date().toISOString()
+function requirePeriod(period: string) { if (!/^\d{4}-\d{2}$/.test(period)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `bad period: ${period}`) }
+
+export function createTools(deps: ToolDeps) {
+  const facilityImport = defineTool({
+    name: 'ghg.facility_import',
+    description: 'Import a small facility boundary (id/name/site/region) into the local GHG pool. Local R1 write; no external system.',
+    parameters: { facilities: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { facility_id: { type: 'string', required: true }, name: { type: 'string', required: true }, site: { type: 'string' }, region: { type: 'string' } } } } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { imported: { type: 'number', required: true }, facility_ids: { type: 'array', items: { type: 'string' }, required: true } } }, render: (_a, v) => text(`imported ${v.imported} facilities`) },
+    async execute(args) {
+      const ids: string[] = []
+      for (const facility of args.facilities) {
+        const record: FacilityRecord = { facility_id: facility.facility_id, name: facility.name, site: facility.site ?? '', region: facility.region ?? '', created_at: now() }
+        await deps.facilities.put(record.facility_id, record); ids.push(record.facility_id)
+      }
+      return { imported: ids.length, facility_ids: ids }
+    },
+  })
+
+  const ingest = defineTool({
+    name: 'ghg.ingest',
+    description: 'Ingest an electricity CSV (date/month,kwh) for one facility/period; validates units and stores activity rows with an evidence hash. No PDF/OCR in S1.',
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, csv_text: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { activity_ids: { type: 'array', items: { type: 'string' }, required: true }, rows: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`ingested ${v.rows} electricity rows`) },
+    async execute(args) {
+      if (!deps.facilities.get(args.facility_id)) throw new GhgError('E_GHG_FACILITY_NOT_FOUND', `unknown facility: ${args.facility_id}`)
+      requirePeriod(args.period)
+      const rows = parseCsv(args.csv_text)
+      const evidence = sha256(args.csv_text)
+      const ids: string[] = []
+      for (const row of rows) {
+        if (!row.date.startsWith(args.period)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `row ${row.date} is outside ${args.period}`)
+        const record: ActivityRecord = { activity_id: newId('act'), facility_id: args.facility_id, period: args.period, date: row.date, kwh: row.kwh, unit: 'kWh', evidence_sha256: evidence, created_at: now() }
+        await deps.activities.put(record.activity_id, record); ids.push(record.activity_id)
+      }
+      return { activity_ids: ids, rows: ids.length, evidence_sha256: evidence }
+    },
+  })
+
+  const matchFactor = defineTool({
+    name: 'ghg.match_factor',
+    description: 'Return the active electricity location factor (public reference) and its source/unit.',
+    parameters: {},
+    output: { schema: { type: 'object', additionalProperties: false, properties: { factor_id: { type: 'string', required: true }, value: { type: 'number', required: true }, unit: { type: 'string', required: true }, source: { type: 'string', required: true } } }, render: (_a, v) => text(`factor ${v.factor_id} = ${v.value} ${v.unit}`) },
+    async execute() { return { factor_id: FACTOR_ID, value: FACTOR_VALUE_KG_PER_KWH, unit: FACTOR_UNIT, source: FACTOR_SOURCE } },
+  })
+
+  const calculate = defineTool({
+    name: 'ghg.calculate',
+    description: 'Calculate location-based electricity emissions for a facility/period: kWh × public grid factor / 1000 = tCO2e. Local R1 write; no Scope 3.',
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { lines: { type: 'number', required: true }, total_tco2e: { type: 'number', required: true }, factor_id: { type: 'string', required: true } } }, render: (_a, v) => text(`calculated ${v.lines} lines = ${v.total_tco2e} tCO2e`) },
+    async execute(args) {
+      if (!deps.facilities.get(args.facility_id)) throw new GhgError('E_GHG_FACILITY_NOT_FOUND', `unknown facility: ${args.facility_id}`)
+      requirePeriod(args.period)
+      const activities = [...deps.activities.entries()].map(([, value]) => value).filter((a) => a.facility_id === args.facility_id && a.period === args.period)
+      if (activities.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'no electricity activity for this facility/period')
+      let total = 0
+      for (const activity of activities) {
+        const value = emissionTco2e(activity.kwh)
+        total += value
+        const line: LineRecord = { line_id: `line_${activity.activity_id}`, activity_id: activity.activity_id, facility_id: activity.facility_id, period: activity.period, kwh: activity.kwh, factor_id: FACTOR_ID, factor_value_kg_per_kwh: FACTOR_VALUE_KG_PER_KWH, emissions_tco2e: value, state: 'calculated', updated_at: now() }
+        await deps.lines.put(line.line_id, line)
+      }
+      return { lines: activities.length, total_tco2e: Math.round(total * 1e6) / 1e6, factor_id: FACTOR_ID }
+    },
+  })
+
+  const verifyRow = defineTool({
+    name: 'ghg.verify_row',
+    description: 'Recalculate every stored line and compare with the stored value; returns rows and mismatches. Read-only after marking verified when zero-diff.',
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { checked: { type: 'number', required: true }, mismatches: { type: 'array', items: { type: 'string' }, required: true }, recalc_diff: { type: 'number', required: true } } }, render: (_a, v) => text(`verified ${v.checked} lines; mismatches=${v.mismatches.length}`) },
+    async execute(args) {
+      requirePeriod(args.period)
+      const lines = [...deps.lines.entries()].map(([, value]) => value).filter((line) => line.facility_id === args.facility_id && line.period === args.period)
+      const mismatches: string[] = []
+      let diff = 0
+      for (const line of lines) {
+        const recalculated = emissionTco2e(line.kwh)
+        const delta = Math.abs(recalculated - line.emissions_tco2e)
+        if (delta > 1e-9) { mismatches.push(line.line_id); diff += delta } else { await deps.lines.put(line.line_id, { ...line, state: 'verified', updated_at: now() }) }
+      }
+      return { checked: lines.length, mismatches, recalc_diff: Math.round(diff * 1e9) / 1e9 }
+    },
+  })
+
+  const exportWorkpaper = defineTool({
+    name: 'ghg.export_workpaper',
+    description: 'Export a 3-sheet xlsx workpaper (Facilities, Activities, Emissions) with source hashes. Local R1 write; no external send.',
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { path: { type: 'string', required: true }, sha256: { type: 'string', required: true }, sheets: { type: 'number', required: true } } }, render: (_a, v) => text(`exported ${v.sheets} sheets`) },
+    async execute(args) {
+      requirePeriod(args.period)
+      const facilities = [...deps.facilities.entries()].map(([, value]) => value)
+      const activities = [...deps.activities.entries()].map(([, value]) => value).filter((a) => a.facility_id === args.facility_id && a.period === args.period)
+      const lines = [...deps.lines.entries()].map(([, value]) => value).filter((l) => l.facility_id === args.facility_id && l.period === args.period)
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(facilities.map((f) => ({ facility_id: f.facility_id, name: f.name, site: f.site, region: f.region }))), 'Facilities')
+      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(activities.map((a) => ({ activity_id: a.activity_id, date: a.date, kwh: a.kwh, evidence_sha256: a.evidence_sha256 }))), 'Activities')
+      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(lines.map((l) => ({ line_id: l.line_id, activity_id: l.activity_id, kwh: l.kwh, factor_id: l.factor_id, factor_value_kg_per_kwh: l.factor_value_kg_per_kwh, emissions_tco2e: l.emissions_tco2e, state: l.state }))), 'Emissions')
+      const dir = path.join(deps.baseDir, 'exports'); await mkdir(dir, { recursive: true })
+      const filePath = path.join(dir, `${args.facility_id}-${args.period}.xlsx`)
+      const buffer = Buffer.from(XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' }))
+      await writeFile(filePath, buffer)
+      return { path: filePath, sha256: sha256(buffer), sheets: workbook.SheetNames.length }
+    },
+  })
+
+  return [facilityImport, ingest, matchFactor, calculate, verifyRow, exportWorkpaper]
+}

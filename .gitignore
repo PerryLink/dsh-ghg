@@ -1,0 +1,8 @@
+node_modules/
+lib/
+pack.json
+evidence/raw/
+fixtures/input/
+*.tgz
+.env
+*.pem

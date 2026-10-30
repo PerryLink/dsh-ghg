@@ -1,0 +1,5 @@
+@perrylink/dsh-ghg
+Copyright 2026 PerryLink
+
+Uses fflate (MIT), zod (MIT) and xlsx (Apache-2.0). Public-demo factor set uses a
+public reference value; it is not assurance-grade and no customer data is included.
