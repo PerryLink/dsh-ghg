@@ -6,3 +6,6 @@
 - `pnpm test` 2/2; gate 4 rows: rows 30/30, MWh 1/1, diff 0, sheets 3/3.
 - Name audit: scoped/bare 404; no bin.
 - Publish pending.
+
+### Publish submitted
+- `npm publish --tag next` exit 0; shasum `595e6cbf5ef6febb3560fe62b27885ad9e14de87`; registry propagation pending.
