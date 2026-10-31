@@ -14,3 +14,6 @@
 
 - Added `ghg.export_esrs`: Scope 2 only, Scope 1/3 = 0/not in boundary, `data_quality=partial`.
 - Tests 3/3; gate 4 S1 rows unchanged.
+
+### latest moved
+- `latest`/`next` verified alpha.1 after propagation.
