@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-alpha.6 — 2026-10-31
+
+- Added pdfjs-dist to third-party notices; no behavior change.
+
 ## 0.1.0-alpha.5 — 2026-10-31
 
 - Added `ghg.scope_import` for public/synthetic Scope 1/3 values in ESRS pack; 8 gate rows.
