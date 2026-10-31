@@ -70,3 +70,15 @@ test('partial ESRS E1 summary from calculated Scope 2', async () => {
     assert.match(text, /scope2_tco2e,/)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('public MIT daily kWh sample through ingest/calculate', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-public-'))
+  try {
+    const { byName, exec } = await setup(dir)
+    const csvText = await readFile('fixtures/public/mit/energy_daily.csv', 'utf8')
+    const ingested = await byName['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-07', csv_text: csvText }, exec)
+    assert.ok(ingested.rows >= 20)
+    const calculated = await byName['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-07' }, exec)
+    assert.equal(calculated.lines, ingested.rows)
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})
