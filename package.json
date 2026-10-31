@@ -1,7 +1,7 @@
 {
   "name": "@perrylink/dsh-ghg",
-  "version": "0.1.0-alpha.6",
-  "description": "Electricity activity ingest, location-based GHG calculation, row verification and 3-sheet workpaper (SKU-02 S1 public/synthetic demo).",
+  "version": "0.1.0-alpha.7",
+  "description": "Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack.",
   "type": "module",
   "main": "./lib/plugin/index.js",
   "types": "./lib/plugin/index.d.ts",
@@ -45,7 +45,8 @@
     "ghg",
     "esg",
     "electricity",
-    "perrylink"
+    "perrylink",
+    "esrs"
   ],
   "repository": {
     "type": "git",
@@ -82,5 +83,9 @@
     "@types/node": "^24.0.0",
     "pdf-lib": "1.17.1",
     "typescript": "7.0.2"
+  },
+  "homepage": "https://github.com/PerryLink/dsh-ghg#readme",
+  "bugs": {
+    "url": "https://github.com/PerryLink/dsh-ghg/issues"
   }
 }
