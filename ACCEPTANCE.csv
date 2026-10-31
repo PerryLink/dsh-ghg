@@ -1,5 +1,5 @@
 req_id,metric,threshold,actual,script,evidence_sha256,pass
-SKU-02-A01,电费活动行（30 行）,30/30,30,scripts/acceptance.mjs,c107e65aa896d2ccd1fac7b5f5498dfb4df87b3f934a4de440f539988c847ecc,true
-SKU-02-A02,MWh 静默转换拒绝,1/1,1,scripts/acceptance.mjs,c107e65aa896d2ccd1fac7b5f5498dfb4df87b3f934a4de440f539988c847ecc,true
-SKU-02-A03,逐行复算差,0,0,scripts/acceptance.mjs,c107e65aa896d2ccd1fac7b5f5498dfb4df87b3f934a4de440f539988c847ecc,true
-SKU-02-A04,底稿 sheet 数,3,3,scripts/acceptance.mjs,c107e65aa896d2ccd1fac7b5f5498dfb4df87b3f934a4de440f539988c847ecc,true
+SKU-02-A01,电费活动行（30 行）,30/30,30,scripts/acceptance.mjs,a52d419fd551d686e92fea3dfa6c33a7954bf61c05c34d4c09bc9874f52c52f2,true
+SKU-02-A02,MWh 静默转换拒绝,1/1,1,scripts/acceptance.mjs,a52d419fd551d686e92fea3dfa6c33a7954bf61c05c34d4c09bc9874f52c52f2,true
+SKU-02-A03,逐行复算差,0,0,scripts/acceptance.mjs,a52d419fd551d686e92fea3dfa6c33a7954bf61c05c34d4c09bc9874f52c52f2,true
+SKU-02-A04,底稿 sheet 数,3,3,scripts/acceptance.mjs,a52d419fd551d686e92fea3dfa6c33a7954bf61c05c34d4c09bc9874f52c52f2,true

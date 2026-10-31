@@ -12,3 +12,7 @@
 
 ### Verified
 - dist-tags latest/next alpha.0; registry tarball install/layer passed.
+
+### alpha.1 — partial ESRS E1 export
+
+- Added `ghg.export_esrs`; Scope 2 only, data_quality partial; tests 3/3.

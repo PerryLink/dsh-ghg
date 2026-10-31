@@ -118,5 +118,23 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [facilityImport, ingest, matchFactor, calculate, verifyRow, exportWorkpaper]
+
+  const exportEsrs = defineTool({
+    name: 'ghg.export_esrs',
+    description: 'Export a partial ESRS E1 CSV summary (Scope 2 only; Scope 1/3 not in boundary) for a period. Local R1 write; not assurance-grade.',
+    parameters: { period: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { path: { type: 'string', required: true }, sha256: { type: 'string', required: true }, scope2_tco2e: { type: 'number', required: true }, rows: { type: 'number', required: true } } }, render: (_a, v) => text(`ESRS E1 Scope2=${v.scope2_tco2e}`) },
+    async execute(args) {
+      requirePeriod(args.period)
+      const lines = [...deps.lines.entries()].map(([, v]) => v).filter((line) => line.period === args.period)
+      if (lines.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', `no emission lines for ${args.period}`)
+      const scope2 = Math.round(lines.reduce((sum, line) => sum + line.emissions_tco2e, 0) * 1e6) / 1e6
+      const csv = ['esrs_e1_field,value', `period,${args.period}`, `scope1_tco2e,0`, `scope2_tco2e,${scope2}`, `scope3_tco2e,0`, `boundary,partial`, `data_quality,partial`, `factor_id,${FACTOR_ID}`, `rows,${lines.length}`].join('\n') + '\n'
+      const dir = path.join(deps.baseDir, 'exports'); await mkdir(dir, { recursive: true })
+      const file = path.join(dir, `esrs-e1-${args.period}.csv`); await writeFile(file, csv)
+      return { path: file, sha256: sha256(csv), scope2_tco2e: scope2, rows: lines.length }
+    },
+  })
+
+  return [facilityImport, ingest, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs]
 }

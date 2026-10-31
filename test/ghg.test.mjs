@@ -55,3 +55,18 @@ test('MWh is rejected rather than silently converted', async () => {
     await assert.rejects(() => byName['ghg.ingest'].execute({ facility_id: 'NO', period: '2026-01', csv_text: csv(1) }, exec), /E_GHG_FACILITY_NOT_FOUND/)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('partial ESRS E1 summary from calculated Scope 2', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-esrs-'))
+  try {
+    const { byName, exec } = await setup(dir)
+    await byName['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: csv() }, exec)
+    await byName['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01' }, exec)
+    const esrs = await byName['ghg.export_esrs'].execute({ period: '2026-01' }, exec)
+    assert.ok(esrs.scope2_tco2e > 0)
+    const text = await readFile(esrs.path, 'utf8')
+    assert.match(text, /scope1_tco2e,0/)
+    assert.match(text, /boundary,partial/)
+    assert.match(text, /scope2_tco2e,/)
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})
