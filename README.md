@@ -2,7 +2,7 @@
 
 Electricity activity ingest, location-based GHG calculation, row verification and 3-sheet workpaper for DeepSeek Harness — **SKU-02 S1 public/synthetic demo**.
 
-> **Status: partial / not GA.** Customer gate is **0 firms / 0 report specialists**. User approved the public/synthetic demo path on 2026-10-31. The factor is a **public reference**, not assurance-grade.
+> **Status: partial / not GA.** Customer-evidence work (firms/report specialists) is **permanently out of scope** (see `PUBLIC-ONLY-BOUNDARY.md` in `04-build`). The factor is a **public reference**, not assurance-grade.
 
 ## Tools
 
