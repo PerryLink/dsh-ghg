@@ -1,4 +1,4 @@
-# PUBLISH-STATUS — @perrylink/dsh-ghg
+# PUBLISH-STATUS — dsh-ghg
 
 ## 0.1.0-alpha.0 — submitted 2026-10-31T07:03+08:00
 

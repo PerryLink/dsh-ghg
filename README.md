@@ -1,4 +1,4 @@
-# @perrylink/dsh-ghg
+# dsh-ghg
 
 Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack for DeepSeek Harness.
 
@@ -7,7 +7,7 @@ Electricity activity ingest, location-based GHG calculation, row verification, w
 ## Install
 
 ```sh
-dsh plugin --profile <profile> add @perrylink/dsh-ghg
+dsh plugin --profile <profile> add dsh-ghg
 dsh --profile <profile> --dump-config | grep dsh-ghg
 ```
 
@@ -16,7 +16,7 @@ Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
 <details>
 <summary>中文摘要</summary>
 
-用电活动入库、基于位置的 GHG 计算、逐行复算、底稿与部分 ESRS 包导出。 安装：`dsh plugin --profile <profile> add @perrylink/dsh-ghg`。公开/合成、alpha、非 GA。
+用电活动入库、基于位置的 GHG 计算、逐行复算、底稿与部分 ESRS 包导出。 安装：`dsh plugin --profile <profile> add dsh-ghg`。公开/合成、alpha、非 GA。
 
 </details>
 

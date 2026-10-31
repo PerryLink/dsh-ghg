@@ -1,4 +1,4 @@
-# BUILD-LOG — @perrylink/dsh-ghg
+# BUILD-LOG — dsh-ghg
 
 ## 2026-10-31 — S1 / 0.1.0-alpha.0
 - User-approved public/synthetic; 0 firms/0 specialists.

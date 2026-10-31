@@ -7,7 +7,7 @@
     "timestamp": "2026-10-30T23:03:28.367Z",
     "component": {
       "type": "application",
-      "name": "@perrylink/dsh-ghg",
+      "name": "dsh-ghg",
       "version": "0.1.0-alpha.0"
     }
   },

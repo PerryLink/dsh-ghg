@@ -13,7 +13,7 @@ Six tools: facility_import, ingest (CSV only), match_factor, calculate (location
 30 electricity rows → 30 lines; MWh rejected 1/1; recalc diff 0; 3 sheets.
 
 ## Name audit
-`@perrylink/dsh-ghg` and bare `dsh-ghg` both 404; no bin. Similar ESG packages exist but this scoped name is free.
+`dsh-ghg` and bare `dsh-ghg` both 404; no bin. Similar ESG packages exist but this scoped name is free.
 
 ## Risks
 Synthetic CSV only; no firm/specialist validation; fixed factor may be superseded; no PDF.
