@@ -1,6 +1,6 @@
 {
   "name": "dsh-ghg",
-  "version": "0.1.0-alpha.9",
+  "version": "0.1.0-alpha.10",
   "description": "Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack.",
   "type": "module",
   "main": "./lib/plugin/index.js",
