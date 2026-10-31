@@ -3,7 +3,7 @@ import path from 'node:path'
 const root=process.cwd(),f=[]
 const pkg=JSON.parse(readFileSync(path.join(root,'package.json'),'utf8'))
 if(pkg.name!=='@perrylink/dsh-ghg')f.push('name')
-if(pkg.version!=='0.1.0-alpha.3')f.push('version')
+if(pkg.version!=='0.1.0-alpha.4')f.push('version')
 if(!pkg.dsh?.bundle?.patch)f.push('bundle')
 if(!pkg.engines?.dsh)f.push('engines')
 if(pkg.dsh?.client)f.push('client')

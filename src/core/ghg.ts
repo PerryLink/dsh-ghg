@@ -85,3 +85,17 @@ export function parseCsv(text: string): Array<{ date: string; kwh: number }> {
   if (rows.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'no activity rows')
   return rows
 }
+
+
+export function parseElectricityPdfText(text: string): Array<{ date: string; kwh: number }> {
+  const rows: Array<{ date: string; kwh: number }> = []
+  const re = /(\d{4}-\d{2}-\d{2})\s*[,\s]\s*([0-9]+(?:\.[0-9]+)?)\s*(?:kwh|千瓦时)?/gi
+  for (const match of text.matchAll(re)) {
+    const date = match[1]!
+    const kwh = Number(match[2])
+    if (!Number.isFinite(kwh) || kwh < 0) continue
+    rows.push({ date, kwh })
+  }
+  if (rows.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'PDF text has no date/kWh rows')
+  return rows
+}

@@ -1,6 +1,6 @@
 {
   "name": "@perrylink/dsh-ghg",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Electricity activity ingest, location-based GHG calculation, row verification and 3-sheet workpaper (SKU-02 S1 public/synthetic demo).",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -62,6 +62,7 @@
   },
   "dependencies": {
     "fflate": "0.8.3",
+    "pdfjs-dist": "5.4.394",
     "xlsx": "0.18.5",
     "zod": "4.4.3"
   },
@@ -79,6 +80,7 @@
     "@deepseek-ai/dsh-util-values": "0.2.1-rc.3",
     "@deepseek-ai/schemastery": "3.18.5",
     "@types/node": "^24.0.0",
+    "pdf-lib": "1.17.1",
     "typescript": "7.0.2"
   }
 }

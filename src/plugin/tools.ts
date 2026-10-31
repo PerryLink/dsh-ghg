@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import * as XLSX from 'xlsx'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv } from '../core/ghg.js'
+import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv, parseElectricityPdfText } from '../core/ghg.js'
 import { newId, type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type Table } from './storage.js'
 
 export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord> }
@@ -55,6 +55,33 @@ export function createTools(deps: ToolDeps) {
     parameters: { factor_id: { type: 'string', required: true }, value_kg_per_kwh: { type: 'number', required: true }, source: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { factor_id: { type: 'string', required: true }, value_kg_per_kwh: { type: 'number', required: true } } }, render: (_a, v) => text(`factor ${v.factor_id}`) },
     async execute(args) { if (!deps.factors) throw new GhgError('E_GHG_FACTOR_UNRESOLVED', 'factor table unavailable'); if (!args.factor_id.trim() || !args.source.trim() || !(args.value_kg_per_kwh > 0)) throw new GhgError('E_GHG_FACTOR_UNRESOLVED', 'invalid factor'); const record: FactorRecord = { factor_id: args.factor_id, value_kg_per_kwh: args.value_kg_per_kwh, unit: FACTOR_UNIT, source: args.source, created_at: now() }; await deps.factors.put(record.factor_id, record); return { factor_id: record.factor_id, value_kg_per_kwh: record.value_kg_per_kwh } },
+  })
+
+
+  const ingestPdf = defineTool({
+    name: 'ghg.ingest_pdf',
+    description: 'Extract date/kWh rows from a text-based PDF using pdfjs-dist; public/synthetic input only. Local R1 write; no OCR.',
+    parameters: { pdf_base64: { type: 'string', required: true }, facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { rows: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`PDF rows=${v.rows}`) },
+    async execute(args) {
+      if (!deps.facilities.get(args.facility_id)) throw new GhgError('E_GHG_FACILITY_NOT_FOUND', `unknown facility: ${args.facility_id}`)
+      requirePeriod(args.period)
+      const buffer = Buffer.from(args.pdf_base64, 'base64'); if (buffer.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'empty PDF')
+      const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs')
+      const task = pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true, isEvalSupported: false, disableFontFace: true })
+      const pdf = await task.promise
+      let text = ''
+      for (let pageNo = 1; pageNo <= pdf.numPages; pageNo += 1) {
+        const page = await pdf.getPage(pageNo); const content = await page.getTextContent(); text += content.items.map((item: any) => item.str ?? '').join('\n') + '\n'
+      }
+      const rows = parseElectricityPdfText(text)
+      const evidence = sha256(buffer); let inserted = 0
+      for (const row of rows) {
+        const activity: ActivityRecord = { activity_id: newId('act'), facility_id: args.facility_id, period: args.period, date: row.date, kwh: row.kwh, unit: 'kWh', evidence_sha256: evidence, created_at: now() }
+        await deps.activities.put(activity.activity_id, activity); inserted += 1
+      }
+      return { rows: inserted, evidence_sha256: evidence }
+    },
   })
 
   const matchFactor = defineTool({
@@ -187,5 +214,5 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [facilityImport, ingest, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack]
+  return [facilityImport, ingest, ingestPdf, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack]
 }

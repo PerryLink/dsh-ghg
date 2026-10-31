@@ -9,6 +9,7 @@ Electricity activity ingest, location-based GHG calculation, row verification an
 | Tool | Purpose |
 |---|---|
 | `ghg.facility_import` | Import facility boundary metadata |
+| `ghg.ingest_pdf` | text-based PDF date/kWh extraction | R1 |
 | `ghg.ingest` | Ingest electricity CSV (`date/month,kwh`); reject MWh/unit mismatch |
 | `ghg.match_factor` | Return the electricity location factor and source |
 | `ghg.factor_import` | versioned public/synthetic factor | R1 |

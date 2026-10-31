@@ -112,3 +112,25 @@ test('partial ESRS E1 xlsx pack', async () => {
     assert.deepEqual(wb.SheetNames, ['E1-6 Summary', 'Methodology', 'Data Quality', 'Lines'])
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('synthetic PDF electricity ingest', async () => {
+  const { PDFDocument, StandardFonts } = await import('pdf-lib')
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-pdf-'))
+  try {
+    const pdf = await PDFDocument.create()
+    const page = pdf.addPage([300, 200])
+    const font = await pdf.embedFont(StandardFonts.Helvetica)
+    page.drawText('date,kwh', { x: 20, y: 160, size: 12, font })
+    page.drawText('2026-01-01,100', { x: 20, y: 140, size: 12, font })
+    page.drawText('2026-01-02,200', { x: 20, y: 120, size: 12, font })
+    const bytes = await pdf.save()
+    const tools = createTools({ facilities: new FakeTable(), activities: new FakeTable(), lines: new FakeTable(), baseDir: path.join(dir, 'store') })
+    const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
+    const exec = { callId: 'pdf', agent: { id: 'tester' } }
+    await by['ghg.facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic' }] }, exec)
+    const result = await by['ghg.ingest_pdf'].execute({ pdf_base64: Buffer.from(bytes).toString('base64'), facility_id: 'F1', period: '2026-01' }, exec)
+    assert.equal(result.rows, 2)
+    const calculated = await by['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01' }, exec)
+    assert.equal(calculated.lines, 2)
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})

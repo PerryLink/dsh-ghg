@@ -22,6 +22,7 @@ try{
 }finally{await rm(dir,{recursive:true,force:true})}
 const factorTools=createTools({facilities:new FakeTable(),activities:new FakeTable(),lines:new FakeTable(),factors:new FakeTable(),baseDir:'/tmp/ghg-factor'});const fb=Object.fromEntries(factorTools.map(t=>[t.name,t]));await fb['ghg.facility_import'].execute({facilities:[{facility_id:'F2',name:'F2'}]},{callId:'a'});await fb['ghg.factor_import'].execute({factor_id:'synthetic',value_kg_per_kwh:0.5,source:'test'},{callId:'a'});await fb['ghg.ingest'].execute({facility_id:'F2',period:'2026-01',csv_text:'date,kwh\n2026-01-01,100'},{callId:'a'});const fcalc=await fb['ghg.calculate'].execute({facility_id:'F2',period:'2026-01',factor_id:'synthetic'},{callId:'a'});
 const pack=await fb['ghg.export_esrs_pack'].execute({period:'2026-01'},{callId:'a'});
+const {PDFDocument,StandardFonts}=await import('pdf-lib');const pdfDoc=await PDFDocument.create();const pdfPage=pdfDoc.addPage([300,200]);const pdfFont=await pdfDoc.embedFont(StandardFonts.Helvetica);pdfPage.drawText('date,kwh',{x:20,y:160,size:12,font:pdfFont});pdfPage.drawText('2026-01-01,100',{x:20,y:140,size:12,font:pdfFont});pdfPage.drawText('2026-01-02,200',{x:20,y:120,size:12,font:pdfFont});const pdfBytes=await pdfDoc.save();const pdfTools=createTools({facilities:new FakeTable(),activities:new FakeTable(),lines:new FakeTable(),baseDir:'/tmp/ghg-pdf'});const pb=Object.fromEntries(pdfTools.map(t=>[t.name,t]));await pb['ghg.facility_import'].execute({facilities:[{facility_id:'F1',name:'PDF'}]},{callId:'a'});const pdfIng=await pb['ghg.ingest_pdf'].execute({pdf_base64:Buffer.from(pdfBytes).toString('base64'),facility_id:'F1',period:'2026-01'},{callId:'a'});
 const metrics=[
  {id:'SKU-02-A01',metric:'电费活动行（30 行）',threshold:'30/30',actual:rows,pass:rows===30},
  {id:'SKU-02-A02',metric:'MWh 静默转换拒绝',threshold:'1/1',actual:mwh,pass:mwh===1},
@@ -29,6 +30,7 @@ const metrics=[
  {id:'SKU-02-A04',metric:'底稿 sheet 数',threshold:'3',actual:sheets,pass:sheets===3},
  {id:'SKU-02-A05',metric:'自定义因子计算',threshold:'0.05',actual:fcalc.total_tco2e,pass:fcalc.factor_id==='synthetic'&&fcalc.total_tco2e===0.05},
  {id:'SKU-02-A06',metric:'ESRS pack sheets',threshold:'4',actual:pack.sheets,pass:pack.sheets===4},
+ {id:'SKU-02-A07',metric:'PDF 电费行',threshold:'2',actual:pdfIng.rows,pass:pdfIng.rows===2},
 ]
 const result={run_id:runId,timestamp:new Date().toISOString(),scope:'SKU-02-S1',status:'partial',counted:false,note:'synthetic electricity CSV; user-approved public/synthetic; 0 real firms/specialists',metrics,pass:metrics.every(m=>m.pass)}
 const text=`${JSON.stringify(result,null,2)}\n`; writeFileSync(path.join(ev,'result.json'),text); const h=sha(text)

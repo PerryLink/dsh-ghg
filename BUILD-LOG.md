@@ -24,3 +24,7 @@
 ### alpha.3 — ESRS pack
 
 - Added 4-sheet partial ESRS E1 pack; tests 6/6; gate 6 rows.
+
+### alpha.4 — PDF ingest
+
+- Added text-based PDF ingest; tests 7/7; gate 7 rows.

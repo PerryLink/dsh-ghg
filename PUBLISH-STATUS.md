@@ -25,3 +25,8 @@
 ## 0.1.0-alpha.3 — partial ESRS pack (2026-10-31)
 
 - Added `ghg.export_esrs_pack` 4-sheet partial ESRS E1 workbook; 6 gate rows.
+
+## 0.1.0-alpha.4 — text PDF ingest (2026-10-31)
+
+- Added `ghg.ingest_pdf` with pdfjs-dist; synthetic PDF test; 7 gate rows.
+- PDF path is text-based only; no OCR/scanned PDF.
