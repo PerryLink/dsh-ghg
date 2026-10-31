@@ -1,35 +1,61 @@
+<div align="center">
+
 # dsh-ghg
 
-> 🧊 **FROZEN — 2026-10-31. No new features.** This public/synthetic S1 demo is not GA; it stays installable and only genuine breakage is fixed.
+[![npm](https://img.shields.io/npm/v/dsh-ghg)](https://www.npmjs.com/package/dsh-ghg)
+[![CI](https://github.com/PerryLink/dsh-ghg/actions/workflows/ci.yml/badge.svg)](https://github.com/PerryLink/dsh-ghg/actions)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![dsh-plugin](https://img.shields.io/badge/dsh--plugin-%E2%9C%93-green)](https://github.com/topics/dsh-plugin)
+[![docs](https://img.shields.io/badge/docs-domain%20index-0b5fff)](https://perrylink.github.io/dsh-plugins/)
+
+**Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack.**
+
+> **Status: alpha / public-synthetic / partial / not counted / not GA.** No customer evidence, customer data, or production-readiness claim.
+
+> 🧊 **FROZEN — 2026-10-31. No new features.** Installable; only genuine breakage is fixed.
 
 ## Maintenance status: 🧊 FROZEN
 
-Frozen on 2026-10-31. This repository is a public/synthetic S1 demo, not a validated product. The npm package stays installable; no new features are planned.
+Frozen on 2026-10-31; the package stays installable, but feature work stops.
 
+[English](README.md) · [简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
 
-Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack for DeepSeek Harness.
+```sh
+dsh plugin --profile <profile> add dsh-ghg
+```
 
-> **Status: alpha / public-synthetic / partial / not counted / not GA.** No customer evidence, customer data, or production-readiness claim. All acceptance rows are `counted=false`.
+</div>
+
+![Workflow diagram for dsh-ghg: local input, plugin, local output.](docs/assets/dsh-ghg-flow.svg)
+
+*Workflow: local input → plugin → local output. No model call is required.*
 
 ## Install
+
+Install and verify:
 
 ```sh
 dsh plugin --profile <profile> add dsh-ghg
 dsh --profile <profile> --dump-config | grep dsh-ghg
 ```
 
-Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
+Uninstall:
 
-<details>
-<summary>中文摘要</summary>
+```sh
+dsh plugin --profile <profile> remove dsh-ghg
+```
 
-用电活动入库、基于位置的 GHG 计算、逐行复算、底稿与部分 ESRS 包导出。 安装：`dsh plugin --profile <profile> add dsh-ghg`。公开/合成、alpha、非 GA。
+## What it does
 
-</details>
+Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack. Runs locally on DeepSeek Harness. The table below is the exact tool surface; the examples use the real command surface.
+
+Input and output stay local; nothing is uploaded.
 
 ## Tools
 
-| Tool | What it does | Risk |
+Tool names and descriptions are kept in English to match the runtime output.
+
+| Tool | Purpose | Risk |
 |---|---|---|
 | `ghg.facility_import` | Import facility boundary metadata | R1 local write |
 | `ghg.ingest` | Ingest electricity CSV (`date/month,kwh`); reject MWh/unit mismatch | R1 local write |
@@ -43,70 +69,57 @@ Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
 | `ghg.export_esrs` | Export a partial ESRS E1 view; not assurance-grade | R1 local write |
 | `ghg.export_esrs_pack` | Export a 4-sheet partial ESRS E1 workbook | R1 local write |
 
-## Input / output
-
-**Input:** electricity activity CSV or text-based PDF, facility metadata, a public factor, and optional public/synthetic Scope 1/3 values. **Output:** calculated tCO2e lines, a 3-sheet workpaper, and a partial ESRS E1 workbook. The default factor is a public reference, not assurance-grade.
-
-## Configuration
-
-| Env | Default | Meaning |
-|---|---|---|
-| `DSH_GHG_HOME` | `$DSH_HOME/storages/dsh-ghg` | local domain and exports |
-
-## Limits / non-claims
-
-- PDF path is **text-based only**; no OCR, scanned PDF, or image extraction.
-- ESRS export is **partial** (Scope 2 plus optional public/synthetic Scope 1/3); it is not assurance-grade and does not include review/lock/restate.
-- No Scope 2 certificates, no tax/utility bill verification, no Client surface.
-- The default factor `electricity-location-cn-2022-v1` = 0.5703 kgCO2e/kWh is a public reference, not a customer or assurance factor.
-- All activity and Scope 1/3 values are public/synthetic; no customer data is included.
-- No customer evidence, customer data, or production-readiness claim; all fixtures are public/synthetic.
-
-## Public sample
-
-31-row MIT daily kWh sample and a synthetic text PDF; `ACCEPTANCE.csv` lists 8 public checks.
-
-## 中文说明
-
-用电活动入库、基于位置的 GHG 计算、逐行复算、三表底稿与**部分** ESRS 包。**公开/合成、alpha、非 GA**，不是 assurance-grade。
-
-### 安装
+## Quick start
 
 ```sh
 dsh plugin --profile <profile> add dsh-ghg
+dsh --profile <profile> --dump-config | grep dsh-ghg
 ```
 
-### 工具
+## Limits
 
-| 工具 | 作用 |
-|---|---|
-| `ghg.facility_import` | 导入设施边界元数据 |
-| `ghg.ingest` | 用电 CSV（`date/month,kwh`），拒绝 MWh/单位不一致 |
-| `ghg.ingest_pdf` | 从文本型 PDF 提取日期/kWh；无 OCR |
-| `ghg.match_factor` | 返回电力 location factor 与公开来源 |
-| `ghg.factor_import` | 导入版本化公开/合成因子 |
-| `ghg.scope_import` | 为部分 ESRS 包导入公开/合成 Scope 1/3 |
-| `ghg.calculate` | kWh × 因子 → tCO2e 行 |
-| `ghg.verify_row` | 全量复算，返回差异 |
-| `ghg.export_workpaper` | 3-sheet xlsx：Facilities / Activities / Emissions |
-| `ghg.export_esrs` / `export_esrs_pack` | 部分 ESRS E1 视图 / 4-sheet 包 |
+- Public/synthetic only; no customer data or customer evidence.
+- Alpha/partial, not counted, no GA or production-readiness claim.
+- No model or network call unless a tool explicitly says so.
+- The exact per-tool boundaries are in the table and `ACCEPTANCE.csv`.
 
-### 输入 / 输出
+## Public sample
 
-输入用电 CSV 或文本 PDF、设施元数据、公开因子、可选公开/合成 Scope 1/3；输出计算行、3 表底稿和部分 ESRS 工作簿。
-
-### 边界
-
-- PDF 只支持文本型；无 OCR/扫描件。
-- ESRS 是部分包（Scope 2 + 可选公开/合成 Scope 1/3），不含 review/lock/restate，不是 assurance-grade。
-- 默认因子 0.5703 kgCO2e/kWh 是公开参考，不是客户/鉴证因子。
+Public/synthetic fixtures live in `test/fixtures/`; `ACCEPTANCE.csv` records the public checks with `counted=false`.
 
 ## Development
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm gate:sku02
+pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ```
+
+## Family
+
+<details>
+<summary>DSH domain plugin family (15 packages + 2 suites)</summary>
+
+| Package | npm |
+|---|---|
+| **[dsh-einvoice](https://github.com/PerryLink/dsh-einvoice)** | [npm](https://www.npmjs.com/package/dsh-einvoice) |
+| **[dsh-docx-redline](https://github.com/PerryLink/dsh-docx-redline)** | [npm](https://www.npmjs.com/package/dsh-docx-redline) |
+| **[dsh-policy-ledger](https://github.com/PerryLink/dsh-policy-ledger)** | [npm](https://www.npmjs.com/package/dsh-policy-ledger) |
+| **[dsh-ghg](https://github.com/PerryLink/dsh-ghg)** | [npm](https://www.npmjs.com/package/dsh-ghg) |
+| **[dsh-bankrec](https://github.com/PerryLink/dsh-bankrec)** | [npm](https://www.npmjs.com/package/dsh-bankrec) |
+| **[dsh-ap-three-way](https://github.com/PerryLink/dsh-ap-three-way)** | [npm](https://www.npmjs.com/package/dsh-ap-three-way) |
+| **[dsh-ifc-qto](https://github.com/PerryLink/dsh-ifc-qto)** | [npm](https://www.npmjs.com/package/dsh-ifc-qto) |
+| **[dsh-qms-capa](https://github.com/PerryLink/dsh-qms-capa)** | [npm](https://www.npmjs.com/package/dsh-qms-capa) |
+| **[dsh-legal-intake](https://github.com/PerryLink/dsh-legal-intake)** | [npm](https://www.npmjs.com/package/dsh-legal-intake) |
+| **[dsh-legal-clause](https://github.com/PerryLink/dsh-legal-clause)** | [npm](https://www.npmjs.com/package/dsh-legal-clause) |
+| **[dsh-freight-audit](https://github.com/PerryLink/dsh-freight-audit)** | [npm](https://www.npmjs.com/package/dsh-freight-audit) |
+| **[dsh-hs-candidate](https://github.com/PerryLink/dsh-hs-candidate)** | [npm](https://www.npmjs.com/package/dsh-hs-candidate) |
+| **[dsh-travel-recon](https://github.com/PerryLink/dsh-travel-recon)** | [npm](https://www.npmjs.com/package/dsh-travel-recon) |
+| **[dsh-pim-lint](https://github.com/PerryLink/dsh-pim-lint)** | [npm](https://www.npmjs.com/package/dsh-pim-lint) |
+| **[dsh-eval-pack](https://github.com/PerryLink/dsh-eval-pack)** | [npm](https://www.npmjs.com/package/dsh-eval-pack) |
+| **[dsh-finops-suite](https://github.com/PerryLink/dsh-finops-suite)** | [npm](https://www.npmjs.com/package/dsh-finops-suite) |
+| **[dsh-contract-suite](https://github.com/PerryLink/dsh-contract-suite)** | [npm](https://www.npmjs.com/package/dsh-contract-suite) |
+
+</details>
 
 ## License
 
