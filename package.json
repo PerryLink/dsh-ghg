@@ -1,6 +1,6 @@
 {
   "name": "@perrylink/dsh-ghg",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Electricity activity ingest, location-based GHG calculation, row verification and 3-sheet workpaper (SKU-02 S1 public/synthetic demo).",
   "type": "module",
   "main": "./lib/plugin/index.js",

@@ -11,6 +11,7 @@ Electricity activity ingest, location-based GHG calculation, row verification an
 | `ghg.facility_import` | Import facility boundary metadata |
 | `ghg.ingest` | Ingest electricity CSV (`date/month,kwh`); reject MWh/unit mismatch |
 | `ghg.match_factor` | Return the electricity location factor and source |
+| `ghg.factor_import` | versioned public/synthetic factor | R1 |
 | `ghg.calculate` | kWh × factor → tCO2e lines |
 | `ghg.verify_row` | Recalculate all lines; return mismatches/diff |
 | `ghg.export_workpaper` | 3-sheet xlsx: Facilities / Activities / Emissions |

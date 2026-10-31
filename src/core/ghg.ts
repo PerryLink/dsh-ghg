@@ -60,8 +60,8 @@ export class GhgError extends Error {
   }
 }
 
-export function emissionTco2e(kwh: number): number {
-  return Math.round((kwh * FACTOR_VALUE_KG_PER_KWH / 1000) * 1e6) / 1e6
+export function emissionTco2e(kwh: number, factorValue = FACTOR_VALUE_KG_PER_KWH): number {
+  return Math.round((kwh * factorValue / 1000) * 1e6) / 1e6
 }
 
 export function parseCsv(text: string): Array<{ date: string; kwh: number }> {

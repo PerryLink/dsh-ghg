@@ -82,3 +82,19 @@ test('public MIT daily kWh sample through ingest/calculate', async () => {
     assert.equal(calculated.lines, ingested.rows)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('custom factor import drives calculation', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-factor-'))
+  try {
+    const tools = createTools({ facilities: new FakeTable(), activities: new FakeTable(), lines: new FakeTable(), factors: new FakeTable(), baseDir: path.join(dir, 'store') })
+    const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
+    const exec = { callId: 'factor', agent: { id: 'tester' } }
+    await by['ghg.facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic', site: 'CN', region: 'CN' }] }, exec)
+    await by['ghg.factor_import'].execute({ factor_id: 'synthetic-factor', value_kg_per_kwh: 0.5, source: 'public/synthetic test' }, exec)
+    await by['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: 'date,kwh\n2026-01-01,100' }, exec)
+    const calculated = await by['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01', factor_id: 'synthetic-factor' }, exec)
+    assert.equal(calculated.factor_id, 'synthetic-factor')
+    assert.equal(calculated.total_tco2e, 0.05)
+    await assert.rejects(() => by['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01', factor_id: 'missing' }, exec), /E_GHG_FACTOR_UNRESOLVED/)
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})

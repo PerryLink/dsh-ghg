@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-alpha.2 — 2026-10-31
+
+- Added versioned `ghg.factor_import`; `ghg.calculate` accepts `factor_id`; 5 gate rows.
+
 ## 0.1.0-alpha.1 — 2026-10-31
 
 - Added `ghg.export_esrs` partial ESRS E1 summary (Scope 2 only; Scope 1/3 not in boundary).

@@ -16,3 +16,7 @@
 ### alpha.1 — partial ESRS E1 export
 
 - Added `ghg.export_esrs`; Scope 2 only, data_quality partial; tests 3/3.
+
+### alpha.2 — versioned factors
+
+- Added `ghg.factor_import`; calculate factor_id; tests 5/5; gate 5 rows.

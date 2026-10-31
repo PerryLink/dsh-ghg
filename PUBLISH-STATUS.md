@@ -17,3 +17,7 @@
 
 ### latest moved
 - `latest`/`next` verified alpha.1 after propagation.
+
+## 0.1.0-alpha.2 — versioned factors (2026-10-31)
+
+- Added `ghg.factor_import`; `ghg.calculate` accepts `factor_id`; 5 gate rows.

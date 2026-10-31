@@ -4,9 +4,9 @@ import path from 'node:path'
 import * as XLSX from 'xlsx'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv } from '../core/ghg.js'
-import { newId, type ActivityRecord, type FacilityRecord, type LineRecord, type Table } from './storage.js'
+import { newId, type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type Table } from './storage.js'
 
-export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string }
+export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord> }
 const text = (value: string) => [{ type: 'text' as const, text: value }]
 const sha256 = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 const now = () => new Date().toISOString()
@@ -48,6 +48,15 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
+
+  const factorImport = defineTool({
+    name: 'ghg.factor_import',
+    description: 'Import a versioned public/synthetic electricity factor. Local R1 write; not assurance-grade.',
+    parameters: { factor_id: { type: 'string', required: true }, value_kg_per_kwh: { type: 'number', required: true }, source: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { factor_id: { type: 'string', required: true }, value_kg_per_kwh: { type: 'number', required: true } } }, render: (_a, v) => text(`factor ${v.factor_id}`) },
+    async execute(args) { if (!deps.factors) throw new GhgError('E_GHG_FACTOR_UNRESOLVED', 'factor table unavailable'); if (!args.factor_id.trim() || !args.source.trim() || !(args.value_kg_per_kwh > 0)) throw new GhgError('E_GHG_FACTOR_UNRESOLVED', 'invalid factor'); const record: FactorRecord = { factor_id: args.factor_id, value_kg_per_kwh: args.value_kg_per_kwh, unit: FACTOR_UNIT, source: args.source, created_at: now() }; await deps.factors.put(record.factor_id, record); return { factor_id: record.factor_id, value_kg_per_kwh: record.value_kg_per_kwh } },
+  })
+
   const matchFactor = defineTool({
     name: 'ghg.match_factor',
     description: 'Return the active electricity location factor (public reference) and its source/unit.',
@@ -59,28 +68,32 @@ export function createTools(deps: ToolDeps) {
   const calculate = defineTool({
     name: 'ghg.calculate',
     description: 'Calculate location-based electricity emissions for a facility/period: kWh × public grid factor / 1000 = tCO2e. Local R1 write; no Scope 3.',
-    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, factor_id: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { lines: { type: 'number', required: true }, total_tco2e: { type: 'number', required: true }, factor_id: { type: 'string', required: true } } }, render: (_a, v) => text(`calculated ${v.lines} lines = ${v.total_tco2e} tCO2e`) },
     async execute(args) {
       if (!deps.facilities.get(args.facility_id)) throw new GhgError('E_GHG_FACILITY_NOT_FOUND', `unknown facility: ${args.facility_id}`)
       requirePeriod(args.period)
       const activities = [...deps.activities.entries()].map(([, value]) => value).filter((a) => a.facility_id === args.facility_id && a.period === args.period)
       if (activities.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'no electricity activity for this facility/period')
+      const custom = args.factor_id ? deps.factors?.get(args.factor_id) : undefined
+      if (args.factor_id && !custom) throw new GhgError('E_GHG_FACTOR_UNRESOLVED', `unknown factor: ${args.factor_id}`)
+      const factorId = custom?.factor_id ?? FACTOR_ID
+      const factorValue = custom?.value_kg_per_kwh ?? FACTOR_VALUE_KG_PER_KWH
       let total = 0
       for (const activity of activities) {
-        const value = emissionTco2e(activity.kwh)
+        const value = emissionTco2e(activity.kwh, factorValue)
         total += value
-        const line: LineRecord = { line_id: `line_${activity.activity_id}`, activity_id: activity.activity_id, facility_id: activity.facility_id, period: activity.period, kwh: activity.kwh, factor_id: FACTOR_ID, factor_value_kg_per_kwh: FACTOR_VALUE_KG_PER_KWH, emissions_tco2e: value, state: 'calculated', updated_at: now() }
+        const line: LineRecord = { line_id: `line_${activity.activity_id}`, activity_id: activity.activity_id, facility_id: activity.facility_id, period: activity.period, kwh: activity.kwh, factor_id: factorId, factor_value_kg_per_kwh: factorValue, emissions_tco2e: value, state: 'calculated', updated_at: now() }
         await deps.lines.put(line.line_id, line)
       }
-      return { lines: activities.length, total_tco2e: Math.round(total * 1e6) / 1e6, factor_id: FACTOR_ID }
+      return { lines: activities.length, total_tco2e: Math.round(total * 1e6) / 1e6, factor_id: factorId }
     },
   })
 
   const verifyRow = defineTool({
     name: 'ghg.verify_row',
     description: 'Recalculate every stored line and compare with the stored value; returns rows and mismatches. Read-only after marking verified when zero-diff.',
-    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, factor_id: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { checked: { type: 'number', required: true }, mismatches: { type: 'array', items: { type: 'string' }, required: true }, recalc_diff: { type: 'number', required: true } } }, render: (_a, v) => text(`verified ${v.checked} lines; mismatches=${v.mismatches.length}`) },
     async execute(args) {
       requirePeriod(args.period)
@@ -88,7 +101,7 @@ export function createTools(deps: ToolDeps) {
       const mismatches: string[] = []
       let diff = 0
       for (const line of lines) {
-        const recalculated = emissionTco2e(line.kwh)
+        const recalculated = emissionTco2e(line.kwh, line.factor_value_kg_per_kwh)
         const delta = Math.abs(recalculated - line.emissions_tco2e)
         if (delta > 1e-9) { mismatches.push(line.line_id); diff += delta } else { await deps.lines.put(line.line_id, { ...line, state: 'verified', updated_at: now() }) }
       }
@@ -99,7 +112,7 @@ export function createTools(deps: ToolDeps) {
   const exportWorkpaper = defineTool({
     name: 'ghg.export_workpaper',
     description: 'Export a 3-sheet xlsx workpaper (Facilities, Activities, Emissions) with source hashes. Local R1 write; no external send.',
-    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
+    parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, factor_id: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { path: { type: 'string', required: true }, sha256: { type: 'string', required: true }, sheets: { type: 'number', required: true } } }, render: (_a, v) => text(`exported ${v.sheets} sheets`) },
     async execute(args) {
       requirePeriod(args.period)
@@ -136,5 +149,5 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [facilityImport, ingest, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs]
+  return [facilityImport, ingest, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs]
 }

@@ -1,3 +1,5 @@
+> **HISTORICAL — customer-evidence/GA work was permanently removed from scope on 2026-10-31; this PARK document is not an active roadmap. See 04-build/PUBLIC-ONLY-BOUNDARY.md.**
+
 # PARK — SKU-02 GHG
 
 Package: `@perrylink/dsh-ghg` (no code/plan yet).

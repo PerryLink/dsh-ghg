@@ -20,11 +20,13 @@ try{
  const exp=await by['ghg.export_workpaper'].execute({facility_id:'F1',period:'2026-01'},exec); sheets=exp.sheets
  const wb=XLSX.read(await readFile(exp.path),{type:'buffer'}); if(wb.SheetNames.length!==3) sheets=0
 }finally{await rm(dir,{recursive:true,force:true})}
+const factorTools=createTools({facilities:new FakeTable(),activities:new FakeTable(),lines:new FakeTable(),factors:new FakeTable(),baseDir:'/tmp/ghg-factor'});const fb=Object.fromEntries(factorTools.map(t=>[t.name,t]));await fb['ghg.facility_import'].execute({facilities:[{facility_id:'F2',name:'F2'}]},{callId:'a'});await fb['ghg.factor_import'].execute({factor_id:'synthetic',value_kg_per_kwh:0.5,source:'test'},{callId:'a'});await fb['ghg.ingest'].execute({facility_id:'F2',period:'2026-01',csv_text:'date,kwh\n2026-01-01,100'},{callId:'a'});const fcalc=await fb['ghg.calculate'].execute({facility_id:'F2',period:'2026-01',factor_id:'synthetic'},{callId:'a'});
 const metrics=[
  {id:'SKU-02-A01',metric:'电费活动行（30 行）',threshold:'30/30',actual:rows,pass:rows===30},
  {id:'SKU-02-A02',metric:'MWh 静默转换拒绝',threshold:'1/1',actual:mwh,pass:mwh===1},
  {id:'SKU-02-A03',metric:'逐行复算差',threshold:'0',actual:diff,pass:diff===0},
  {id:'SKU-02-A04',metric:'底稿 sheet 数',threshold:'3',actual:sheets,pass:sheets===3},
+ {id:'SKU-02-A05',metric:'自定义因子计算',threshold:'0.05',actual:fcalc.total_tco2e,pass:fcalc.factor_id==='synthetic'&&fcalc.total_tco2e===0.05},
 ]
 const result={run_id:runId,timestamp:new Date().toISOString(),scope:'SKU-02-S1',status:'partial',counted:false,note:'synthetic electricity CSV; user-approved public/synthetic; 0 real firms/specialists',metrics,pass:metrics.every(m=>m.pass)}
 const text=`${JSON.stringify(result,null,2)}\n`; writeFileSync(path.join(ev,'result.json'),text); const h=sha(text)
