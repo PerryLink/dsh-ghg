@@ -98,3 +98,17 @@ test('custom factor import drives calculation', async () => {
     await assert.rejects(() => by['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01', factor_id: 'missing' }, exec), /E_GHG_FACTOR_UNRESOLVED/)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('partial ESRS E1 xlsx pack', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-pack-'))
+  try {
+    const { byName, exec } = await setup(dir)
+    await byName['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: csv() }, exec)
+    await byName['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01' }, exec)
+    const pack = await byName['ghg.export_esrs_pack'].execute({ period: '2026-01' }, exec)
+    assert.ok(pack.scope2_tco2e > 0)
+    assert.equal(pack.sheets, 4)
+    const wb = XLSX.read(await readFile(pack.path), { type: 'buffer' })
+    assert.deepEqual(wb.SheetNames, ['E1-6 Summary', 'Methodology', 'Data Quality', 'Lines'])
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})

@@ -1,6 +1,7 @@
 req_id,metric,threshold,actual,script,evidence_sha256,pass
-SKU-02-A01,电费活动行（30 行）,30/30,30,scripts/acceptance.mjs,bc2da126e156435942e7bb44bc1bdef845d935117abf883e1cbacbeafa0b867f,true
-SKU-02-A02,MWh 静默转换拒绝,1/1,1,scripts/acceptance.mjs,bc2da126e156435942e7bb44bc1bdef845d935117abf883e1cbacbeafa0b867f,true
-SKU-02-A03,逐行复算差,0,0,scripts/acceptance.mjs,bc2da126e156435942e7bb44bc1bdef845d935117abf883e1cbacbeafa0b867f,true
-SKU-02-A04,底稿 sheet 数,3,3,scripts/acceptance.mjs,bc2da126e156435942e7bb44bc1bdef845d935117abf883e1cbacbeafa0b867f,true
-SKU-02-A05,自定义因子计算,0.05,0.05,scripts/acceptance.mjs,bc2da126e156435942e7bb44bc1bdef845d935117abf883e1cbacbeafa0b867f,true
+SKU-02-A01,电费活动行（30 行）,30/30,30,scripts/acceptance.mjs,d1f540ebc6827ab409fd309fc1ac73893f1de53d3712ac890357dc6f46a4f255,true
+SKU-02-A02,MWh 静默转换拒绝,1/1,1,scripts/acceptance.mjs,d1f540ebc6827ab409fd309fc1ac73893f1de53d3712ac890357dc6f46a4f255,true
+SKU-02-A03,逐行复算差,0,0,scripts/acceptance.mjs,d1f540ebc6827ab409fd309fc1ac73893f1de53d3712ac890357dc6f46a4f255,true
+SKU-02-A04,底稿 sheet 数,3,3,scripts/acceptance.mjs,d1f540ebc6827ab409fd309fc1ac73893f1de53d3712ac890357dc6f46a4f255,true
+SKU-02-A05,自定义因子计算,0.05,0.05,scripts/acceptance.mjs,d1f540ebc6827ab409fd309fc1ac73893f1de53d3712ac890357dc6f46a4f255,true
+SKU-02-A06,ESRS pack sheets,4,4,scripts/acceptance.mjs,d1f540ebc6827ab409fd309fc1ac73893f1de53d3712ac890357dc6f46a4f255,true

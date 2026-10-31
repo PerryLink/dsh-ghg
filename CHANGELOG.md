@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-alpha.3 — 2026-10-31
+
+- Added `ghg.export_esrs_pack` partial 4-sheet ESRS E1 workbook; 6 gate rows.
+
 ## 0.1.0-alpha.2 — 2026-10-31
 
 - Added versioned `ghg.factor_import`; `ghg.calculate` accepts `factor_id`; 5 gate rows.

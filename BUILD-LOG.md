@@ -20,3 +20,7 @@
 ### alpha.2 — versioned factors
 
 - Added `ghg.factor_import`; calculate factor_id; tests 5/5; gate 5 rows.
+
+### alpha.3 — ESRS pack
+
+- Added 4-sheet partial ESRS E1 pack; tests 6/6; gate 6 rows.
