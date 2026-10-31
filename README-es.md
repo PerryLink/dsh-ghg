@@ -2,11 +2,18 @@
 
 # dsh-ghg
 
+> **Repositorio oficial.** El único repositorio oficial de este paquete, mantenido por PerryLink. Los repositorios con el mismo nombre en otras cuentas no están afiliados. Apache-2.0.
+
 [![npm](https://img.shields.io/npm/v/dsh-ghg)](https://www.npmjs.com/package/dsh-ghg)
 [![CI](https://github.com/PerryLink/dsh-ghg/actions/workflows/ci.yml/badge.svg)](https://github.com/PerryLink/dsh-ghg/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![dsh-plugin](https://img.shields.io/badge/dsh--plugin-%E2%9C%93-green)](https://github.com/topics/dsh-plugin)
 [![docs](https://img.shields.io/badge/docs-domain%20index-0b5fff)](https://perrylink.github.io/dsh-plugins/)
+[![Gitee](https://img.shields.io/badge/Gitee-aggregate-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-plugins)
+[![dshfind](https://dshfind.com/api/badge/PerryLink/dsh-ghg?metric=downloads)](https://dshfind.com/plugins/PerryLink/dsh-ghg?ref=badge)
+[![DSH Market](https://raw.githubusercontent.com/2BingLing/dsh-market/master/assets/readme/badge-listed-en.svg)](https://dsh.market/)
+[![Node](https://img.shields.io/badge/node-24.9%2B-brightgreen)](#)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-ghg)](https://www.npmjs.com/package/dsh-ghg)
 
 **Ingesta de actividad eléctrica, cálculo GEI por ubicación, hoja de trabajo y paquete ESRS parcial.**
 
@@ -25,6 +32,8 @@ dsh plugin --profile <profile> add dsh-ghg
 ```
 
 </div>
+
+> ⭐ Si te resulta útil, una estrella ayuda a que la siguiente persona lo encuentre. Nada está bloqueado tras ella.
 
 ![Workflow diagram for dsh-ghg: local input, plugin, local output.](docs/assets/dsh-ghg-flow.svg)
 
@@ -93,6 +102,30 @@ Las fixtures públicas/sintéticas están en `test/fixtures/`; `ACCEPTANCE.csv` 
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ```
+
+## Compatibilidad
+
+| Superficie | Estado |
+|---|---|
+| Harness | `dsh >=0.2.1-rc.3 <0.3.0` |
+| Node | `>=24.9.0 <25` |
+| Platforms | All; local files only |
+| Datos | No network, no model call, no upload |
+
+## Permisos y datos
+
+- Se ejecuta localmente; sin red, sin modelo, sin subida.
+- Solo fixtures públicas/sintéticas; sin datos ni evidencia de clientes.
+- Alpha/parcial; no contabilizado, sin GA ni promesa de producción.
+- Los paquetes congelados siguen instalables; sin nuevas funciones, solo fallos reales.
+
+## Trabajo relacionado
+
+Paquetes hermanos e índices de familia: [dsh-qms-capa](https://github.com/PerryLink/dsh-qms-capa) · [dsh-policy-ledger](https://github.com/PerryLink/dsh-policy-ledger)
+
+- [Índice de dominio](https://perrylink.github.io/dsh-plugins/)
+- [Familia de checkers](https://perrylink.github.io/zh/checkers/)
+- [Familia principal](https://github.com/PerryLink/dsh-kit)
 
 ## Familia
 
