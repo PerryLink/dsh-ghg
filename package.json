@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "fflate": "0.8.3",
-    "pdfjs-dist": "5.4.394",
+    "pdfjs-dist": "6.4.299",
     "xlsx": "0.18.5",
     "zod": "4.4.3"
   },
