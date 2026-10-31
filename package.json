@@ -84,7 +84,7 @@
     "pdf-lib": "1.17.1",
     "typescript": "7.0.2"
   },
-  "homepage": "https://github.com/PerryLink/dsh-ghg#readme",
+  "homepage": "https://perrylink.github.io/dsh-plugins/packages/dsh-ghg.html",
   "bugs": {
     "url": "https://github.com/PerryLink/dsh-ghg/issues"
   }
