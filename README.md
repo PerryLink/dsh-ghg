@@ -66,6 +66,41 @@ Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
 
 31-row MIT daily kWh sample and a synthetic text PDF; `ACCEPTANCE.csv` lists 8 public checks.
 
+## 中文说明
+
+用电活动入库、基于位置的 GHG 计算、逐行复算、三表底稿与**部分** ESRS 包。**公开/合成、alpha、非 GA**，不是 assurance-grade。
+
+### 安装
+
+```sh
+dsh plugin --profile <profile> add dsh-ghg
+```
+
+### 工具
+
+| 工具 | 作用 |
+|---|---|
+| `ghg.facility_import` | 导入设施边界元数据 |
+| `ghg.ingest` | 用电 CSV（`date/month,kwh`），拒绝 MWh/单位不一致 |
+| `ghg.ingest_pdf` | 从文本型 PDF 提取日期/kWh；无 OCR |
+| `ghg.match_factor` | 返回电力 location factor 与公开来源 |
+| `ghg.factor_import` | 导入版本化公开/合成因子 |
+| `ghg.scope_import` | 为部分 ESRS 包导入公开/合成 Scope 1/3 |
+| `ghg.calculate` | kWh × 因子 → tCO2e 行 |
+| `ghg.verify_row` | 全量复算，返回差异 |
+| `ghg.export_workpaper` | 3-sheet xlsx：Facilities / Activities / Emissions |
+| `ghg.export_esrs` / `export_esrs_pack` | 部分 ESRS E1 视图 / 4-sheet 包 |
+
+### 输入 / 输出
+
+输入用电 CSV 或文本 PDF、设施元数据、公开因子、可选公开/合成 Scope 1/3；输出计算行、3 表底稿和部分 ESRS 工作簿。
+
+### 边界
+
+- PDF 只支持文本型；无 OCR/扫描件。
+- ESRS 是部分包（Scope 2 + 可选公开/合成 Scope 1/3），不含 review/lock/restate，不是 assurance-grade。
+- 默认因子 0.5703 kgCO2e/kWh 是公开参考，不是客户/鉴证因子。
+
 ## Development
 
 ```sh
