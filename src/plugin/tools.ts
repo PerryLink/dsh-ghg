@@ -4,9 +4,9 @@ import path from 'node:path'
 import * as XLSX from 'xlsx'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv, parseElectricityPdfText } from '../core/ghg.js'
-import { newId, type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type Table } from './storage.js'
+import { newId, type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type ScopeRecord, type Table } from './storage.js'
 
-export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord> }
+export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord>; scopes?: Table<ScopeRecord> }
 const text = (value: string) => [{ type: 'text' as const, text: value }]
 const sha256 = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 const now = () => new Date().toISOString()
@@ -48,6 +48,15 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
+
+
+  const scopeImport = defineTool({
+    name: 'ghg.scope_import',
+    description: 'Import public/synthetic Scope 1/3 figures for an ESRS pack. Local R1 write; not assurance-grade, not customer evidence.',
+    parameters: { period: { type: 'string', required: true }, scope1_tco2e: { type: 'number', required: true }, scope3_tco2e: { type: 'number', required: true }, source: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { period: { type: 'string', required: true }, scope1_tco2e: { type: 'number', required: true }, scope3_tco2e: { type: 'number', required: true } } }, render: (_a, v) => text(`scope ${v.period}`) },
+    async execute(args) { if (!deps.scopes) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'scope table unavailable'); requirePeriod(args.period); if (args.scope1_tco2e < 0 || args.scope3_tco2e < 0 || !args.source.trim()) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'invalid scope values'); const r: ScopeRecord = { period: args.period, scope1_tco2e: args.scope1_tco2e, scope3_tco2e: args.scope3_tco2e, source: args.source, created_at: now() }; await deps.scopes.put(args.period, r); return { period: r.period, scope1_tco2e: r.scope1_tco2e, scope3_tco2e: r.scope3_tco2e } },
+  })
 
   const factorImport = defineTool({
     name: 'ghg.factor_import',
@@ -187,13 +196,14 @@ export function createTools(deps: ToolDeps) {
       const lines = [...deps.lines.entries()].map(([, v]) => v).filter((line) => line.period === args.period)
       if (lines.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', `no emission lines for ${args.period}`)
       const scope2 = Math.round(lines.reduce((sum, line) => sum + line.emissions_tco2e, 0) * 1e6) / 1e6
+      const scope = deps.scopes?.get(args.period)
       const factors = [...new Set(lines.map((line) => line.factor_id))].join(',')
       const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
         { field: 'period', value: args.period, note: 'public/synthetic' },
-        { field: 'scope1_tco2e', value: 0, note: 'not in boundary' },
+        { field: 'scope1_tco2e', value: scope?.scope1_tco2e ?? 0, note: scope ? `public/synthetic: ${scope.source}` : 'not in boundary' },
         { field: 'scope2_tco2e', value: scope2, note: 'location-based electricity' },
-        { field: 'scope3_tco2e', value: 0, note: 'not in boundary' },
+        { field: 'scope3_tco2e', value: scope?.scope3_tco2e ?? 0, note: scope ? `public/synthetic: ${scope.source}` : 'not in boundary' },
         { field: 'boundary', value: 'partial', note: 'Scope 2 only' },
       ]), 'E1-6 Summary')
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
@@ -214,5 +224,5 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [facilityImport, ingest, ingestPdf, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack]
+  return [facilityImport, ingest, ingestPdf, scopeImport, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack]
 }

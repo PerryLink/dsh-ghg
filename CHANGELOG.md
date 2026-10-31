@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-alpha.5 — 2026-10-31
+
+- Added `ghg.scope_import` for public/synthetic Scope 1/3 values in ESRS pack; 8 gate rows.
+
 ## 0.1.0-alpha.4 — 2026-10-31
 
 - Added `ghg.ingest_pdf` (pdfjs-dist, text-based PDFs only); 7 gate rows.

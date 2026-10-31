@@ -30,3 +30,7 @@
 
 - Added `ghg.ingest_pdf` with pdfjs-dist; synthetic PDF test; 7 gate rows.
 - PDF path is text-based only; no OCR/scanned PDF.
+
+## 0.1.0-alpha.5 — Scope 1/3 import (2026-10-31)
+
+- Added `ghg.scope_import` for public/synthetic Scope 1/3 values in ESRS pack; 8 gate rows; still partial.

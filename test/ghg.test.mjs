@@ -134,3 +134,21 @@ test('synthetic PDF electricity ingest', async () => {
     assert.equal(calculated.lines, 2)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('public/synthetic Scope 1/3 values appear in ESRS pack', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-scope-'))
+  try {
+    const tools = createTools({ facilities: new FakeTable(), activities: new FakeTable(), lines: new FakeTable(), scopes: new FakeTable(), baseDir: path.join(dir, 'store') })
+    const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
+    const exec = { callId: 'scope', agent: { id: 'tester' } }
+    await by['ghg.facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic' }] }, exec)
+    await by['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: csv() }, exec)
+    await by['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01' }, exec)
+    await by['ghg.scope_import'].execute({ period: '2026-01', scope1_tco2e: 1.25, scope3_tco2e: 2.5, source: 'synthetic test' }, exec)
+    const pack = await by['ghg.export_esrs_pack'].execute({ period: '2026-01' }, exec)
+    const wb = XLSX.read(await readFile(pack.path), { type: 'buffer' })
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets['E1-6 Summary'])
+    assert.ok(rows.some((row) => row.field === 'scope1_tco2e' && row.value === 1.25))
+    assert.ok(rows.some((row) => row.field === 'scope3_tco2e' && row.value === 2.5))
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})

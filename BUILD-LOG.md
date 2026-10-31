@@ -28,3 +28,7 @@
 ### alpha.4 — PDF ingest
 
 - Added text-based PDF ingest; tests 7/7; gate 7 rows.
+
+### alpha.5 — Scope 1/3 import
+
+- Added scope import; 8 gate rows; still partial.
