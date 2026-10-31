@@ -1,0 +1,39 @@
+{
+  "run_id": "sku02-2026-10-31T07-09-16-300Z",
+  "timestamp": "2026-10-31T07:09:16.322Z",
+  "scope": "SKU-02-S1",
+  "status": "partial",
+  "counted": false,
+  "note": "synthetic electricity CSV; user-approved public/synthetic; 0 real firms/specialists",
+  "metrics": [
+    {
+      "id": "SKU-02-A01",
+      "metric": "电费活动行（30 行）",
+      "threshold": "30/30",
+      "actual": 30,
+      "pass": true
+    },
+    {
+      "id": "SKU-02-A02",
+      "metric": "MWh 静默转换拒绝",
+      "threshold": "1/1",
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "id": "SKU-02-A03",
+      "metric": "逐行复算差",
+      "threshold": "0",
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "id": "SKU-02-A04",
+      "metric": "底稿 sheet 数",
+      "threshold": "3",
+      "actual": 3,
+      "pass": true
+    }
+  ],
+  "pass": true
+}
