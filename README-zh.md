@@ -99,7 +99,7 @@ dsh --profile <profile> --dump-config | grep dsh-ghg
 
 ### fixture 支撑的示例
 
-输入: [`fixtures/public/mit/energy_daily.csv`](fixtures/public/mit/energy_daily.csv)
+输入: [`fixtures/public/mit/energy_daily.csv`](https://github.com/PerryLink/dsh-ghg/blob/main/fixtures/public/mit/energy_daily.csv)
 
 命令: `pnpm test`
 
@@ -148,6 +148,8 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ## 相关项目
 
 兄弟包与家族索引： [dsh-qms-capa](https://github.com/PerryLink/dsh-qms-capa) · [dsh-policy-ledger](https://github.com/PerryLink/dsh-policy-ledger)
+
+相关核查器（英文表）: [Related checkers](README.md#related-checkers).
 
 - [领域索引](https://perrylink.github.io/dsh-plugins/)
 - [Checker 家族](https://perrylink.github.io/zh/checkers/)

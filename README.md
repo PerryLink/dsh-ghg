@@ -99,7 +99,7 @@ dsh --profile <profile> --dump-config | grep dsh-ghg
 
 ### Fixture-backed example
 
-Input: [`fixtures/public/mit/energy_daily.csv`](fixtures/public/mit/energy_daily.csv)
+Input: [`fixtures/public/mit/energy_daily.csv`](https://github.com/PerryLink/dsh-ghg/blob/main/fixtures/public/mit/energy_daily.csv)
 
 Command: `pnpm test`
 
@@ -148,6 +148,16 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ## Related work
 
 Sibling packages and family indexes: [dsh-qms-capa](https://github.com/PerryLink/dsh-qms-capa) · [dsh-policy-ledger](https://github.com/PerryLink/dsh-policy-ledger)
+
+
+### Related checkers
+
+Each entry is a separate package with its own rule pack and version; install only the ones you need.
+
+| Package | Why it is relevant |
+|---|---|
+| [`dsh-eia-guide-check`](https://github.com/PerryLink/dsh-eia-guide-check) | Environmental assessment applicability and guideline sheet. |
+| [`dsh-soilwater-check`](https://github.com/PerryLink/dsh-soilwater-check) | Soil and groundwater monitoring register completeness and arithmetic. |
 
 - [Domain index](https://perrylink.github.io/dsh-plugins/)
 - [Checker family](https://perrylink.github.io/zh/checkers/)

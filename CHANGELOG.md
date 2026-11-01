@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.12] — 2026-11-01
+
+### Changed
+
+- Documentation: five-language fixture/acceptance links now resolve on npm; added specific related-checker/tool links.
+- Marketplace metadata: taxonomy category, archetype, domains and status; docs page now shows the same.
+
 All notable changes to `dsh-ghg` are documented here. The format follows Keep a Changelog; this project uses alpha versions.
 
 ## [0.1.0-alpha.11] — 2026-11-01

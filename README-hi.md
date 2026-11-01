@@ -99,7 +99,7 @@ dsh --profile <profile> --dump-config | grep dsh-ghg
 
 ### fixture-आधारित उदाहरण
 
-इनपुट: [`fixtures/public/mit/energy_daily.csv`](fixtures/public/mit/energy_daily.csv)
+इनपुट: [`fixtures/public/mit/energy_daily.csv`](https://github.com/PerryLink/dsh-ghg/blob/main/fixtures/public/mit/energy_daily.csv)
 
 कमांड: `pnpm test`
 
@@ -148,6 +148,8 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ## संबंधित कार्य
 
 सहोदर पैकेज और परिवार सूचकांक: [dsh-qms-capa](https://github.com/PerryLink/dsh-qms-capa) · [dsh-policy-ledger](https://github.com/PerryLink/dsh-policy-ledger)
+
+संबंधित चेकर (अंग्रेज़ी तालिका): [Related checkers](README.md#related-checkers).
 
 - [डोमेन सूचकांक](https://perrylink.github.io/dsh-plugins/)
 - [चेकर परिवार](https://perrylink.github.io/zh/checkers/)
