@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import * as XLSX from 'xlsx'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv, parseElectricityPdfText } from '../core/ghg.js'
+import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv, parseElectricityPdfText, summarizeScope3 } from '../core/ghg.js'
 import { newId, type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type ScopeRecord, type Table } from './storage.js'
 
 export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord>; scopes?: Table<ScopeRecord> }
@@ -252,5 +252,13 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [facilityImport, ingest, ingestPdf, scopeImport, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack, coverage]
+  const scope3Summary = defineTool({
+    name: 'ghg.scope3_summary',
+    description: 'Summarise Scope 3 rows by the 15 GHG Protocol categories: per-category totals, reported count and category/value issues. Read-only; no writes.',
+    parameters: { rows: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { category: { type: 'number', required: true }, tco2e: { type: 'number', required: true }, source: { type: 'string' } } } } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { total_tco2e: { type: 'number', required: true }, reported_categories: { type: 'number', required: true }, categories: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { category: { type: 'number', required: true }, name: { type: 'string', required: true }, tco2e: { type: 'number', required: true } } } }, issues: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { code: { type: 'string', required: true }, detail: { type: 'string', required: true } } } } } }, render: (_a, v) => text(`scope3 ${v.total_tco2e} tCO2e across ${v.reported_categories} categories`) },
+    async execute(args) { return summarizeScope3(args.rows) },
+  })
+
+  return [facilityImport, ingest, ingestPdf, scopeImport, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack, coverage, scope3Summary]
 }

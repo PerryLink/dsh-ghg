@@ -99,3 +99,50 @@ export function parseElectricityPdfText(text: string): Array<{ date: string; kwh
   if (rows.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'PDF text has no date/kWh rows')
   return rows
 }
+
+/** The 15 Scope 3 categories of the GHG Protocol Corporate Value Chain (Scope 3) Standard. */
+export const SCOPE3_CATEGORIES = [
+  'purchased goods and services',
+  'capital goods',
+  'fuel- and energy-related activities',
+  'upstream transportation and distribution',
+  'waste generated in operations',
+  'business travel',
+  'employee commuting',
+  'upstream leased assets',
+  'downstream transportation and distribution',
+  'processing of sold products',
+  'use of sold products',
+  'end-of-life treatment of sold products',
+  'downstream leased assets',
+  'franchises',
+  'investments',
+] as const
+export interface Scope3Row { category: number; tco2e: number; source?: string }
+export interface Scope3Issue { code: string; detail: string }
+export interface Scope3Summary {
+  categories: Array<{ category: number; name: string; tco2e: number }>
+  total_tco2e: number
+  reported_categories: number
+  issues: Scope3Issue[]
+}
+export function summarizeScope3(rows: Scope3Row[]): Scope3Summary {
+  const buckets = new Map<number, number>()
+  const issues: Scope3Issue[] = []
+  for (const row of rows) {
+    if (!Number.isInteger(row.category) || row.category < 1 || row.category > 15) {
+      issues.push({ code: 'E_GHG_SCOPE3_CATEGORY', detail: `category ${row.category} is outside 1-15` })
+      continue
+    }
+    if (!Number.isFinite(row.tco2e) || row.tco2e < 0) {
+      issues.push({ code: 'E_GHG_SCOPE3_VALUE', detail: `category ${row.category} has a non-finite or negative value` })
+      continue
+    }
+    buckets.set(row.category, (buckets.get(row.category) ?? 0) + row.tco2e)
+  }
+  const categories = [...buckets.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([category, value]) => ({ category, name: SCOPE3_CATEGORIES[category - 1]!, tco2e: Math.round(value * 1e9) / 1e9 }))
+  const total = categories.reduce((sum, c) => sum + c.tco2e, 0)
+  return { categories, total_tco2e: Math.round(total * 1e9) / 1e9, reported_categories: categories.length, issues }
+}

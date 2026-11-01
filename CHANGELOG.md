@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.1.0-alpha.13] — 2026-11-01
+## [0.1.0-alpha.14] — 2026-11-01
+
+### Added
+
+- `ghg.scope3_summary`: aggregate Scope 3 rows across the 15 GHG Protocol Corporate Value Chain categories, with category-range and negative-value diagnostics. Verified by `node --test test/*.test.mjs` (13/13).
+
+## [Unreleased]
 
 ### Added
 
