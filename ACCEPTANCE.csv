@@ -1,9 +1,10 @@
 req_id,metric,threshold,actual,script,evidence_sha256,pass,source,counted
-SKU-02-A01,电费活动行（30 行）,30/30,30,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A02,MWh 静默转换拒绝,1/1,1,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A03,逐行复算差,0,0,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A04,底稿 sheet 数,3,3,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A05,自定义因子计算,0.05,0.05,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A06,ESRS pack sheets,4,4,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A07,PDF 电费行,2,2,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
-SKU-02-A08,Scope 1/3 pack,1.25/2.5,1,scripts/acceptance.mjs,3439e43485d1232b9f4c54d716e8d88331f3eb5826378e30a15a4ea6c0c890cc,true,public/synthetic,false
+SKU-02-A01,电费活动行（30 行）,30/30,30,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A02,MWh 静默转换拒绝,1/1,1,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A03,逐行复算差,0,0,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A04,底稿 sheet 数,3,3,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A05,自定义因子计算,0.05,0.05,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A06,ESRS pack sheets,4,4,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A07,PDF 电费行,2,2,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A08,Scope 1/3 pack,1.25/2.5,1,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false
+SKU-02-A09,年度覆盖度/缺失月份,11,11,scripts/acceptance.mjs,41a25a1c058e82ceb6eed1769035951a3f93055cb7c372725e319d2587cab0d5,true,public/synthetic,false

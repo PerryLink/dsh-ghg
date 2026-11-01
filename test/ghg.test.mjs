@@ -56,6 +56,24 @@ test('MWh is rejected rather than silently converted', async () => {
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
 
+test('year coverage reports covered and missing months with totals', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-coverage-'))
+  try {
+    const { byName, exec } = await setup(dir)
+    await byName['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: csv() }, exec)
+    await byName['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-02', csv_text: 'date,kwh\n2026-02-01,100\n2026-02-02,200' }, exec)
+    const coverage = await byName['ghg.period_coverage'].execute({ year: '2026' }, exec)
+    assert.deepEqual(coverage.covered_months, ['2026-01', '2026-02'])
+    assert.equal(coverage.missing_months.length, 10)
+    assert.equal(coverage.missing_months[0], '2026-03')
+    assert.equal(coverage.rows, 32)
+    assert.equal(coverage.kwh, 3765)
+    assert.ok(coverage.tco2e > 0)
+    assert.equal(coverage.complete, false)
+    await assert.rejects(() => byName['ghg.period_coverage'].execute({ year: '26' }, exec), /E_GHG_BILL_INCOMPLETE/)
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})
+
 test('partial ESRS E1 summary from calculated Scope 2', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ghg-esrs-'))
   try {

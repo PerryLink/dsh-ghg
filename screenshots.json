@@ -1,0 +1,14 @@
+[
+  {
+    "path": "docs/assets/dsh-ghg-capability.png",
+    "kind": "capability",
+    "alt": "dsh-ghg real test run",
+    "caption": "Real command: node --test test/ghg.test.mjs — 9 tests passed, 0 failed (reporting-year coverage/gap check, unit rejection, workpaper and ESRS pack). Run 2026-11-01; the image is rendered from the captured terminal output."
+  },
+  {
+    "path": "docs/assets/dsh-ghg-flow.svg",
+    "kind": "flow",
+    "alt": "dsh-ghg flow diagram",
+    "caption": "Pipeline diagram, schematic not test evidence."
+  }
+]

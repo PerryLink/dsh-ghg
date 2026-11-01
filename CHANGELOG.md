@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-alpha.13] — 2026-11-01
+
+### Added
+
+- `ghg.period_coverage`: reporting-year completeness check — covered and missing months, row count, kWh and calculated tCO2e. Implemented from the GHG Protocol Scope 2 guidance and the ESRS E1 completeness expectation; no third-party code or fixtures. Verified by `node --test test/ghg.test.mjs` (9/9 pass).
+
 ## [0.1.0-alpha.12] — 2026-11-01
 
 ### Changed

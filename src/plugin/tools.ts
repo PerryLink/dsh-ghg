@@ -224,5 +224,33 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [facilityImport, ingest, ingestPdf, scopeImport, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack]
+
+  const coverage = defineTool({
+    name: 'ghg.period_coverage',
+    description: 'Report month coverage for one reporting year from stored electricity activity: covered/missing months, rows, kWh and calculated tCO2e. Read-only completeness check; local only, no external system.',
+    parameters: { year: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { year: { type: 'string', required: true }, covered_months: { type: 'array', items: { type: 'string' }, required: true }, missing_months: { type: 'array', items: { type: 'string' }, required: true }, rows: { type: 'number', required: true }, kwh: { type: 'number', required: true }, tco2e: { type: 'number', required: true }, complete: { type: 'boolean', required: true } } }, render: (_a, v) => text(`coverage ${v.year}: ${v.covered_months.length}/12 months, missing ${v.missing_months.length}`) },
+    async execute(args) {
+      if (!/^\d{4}$/.test(args.year)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `bad year: ${args.year}`)
+      const byMonth = new Map<string, { rows: number; kwh: number }>()
+      for (const [, activity] of deps.activities.entries()) {
+        if (!String(activity.period).startsWith(args.year)) continue
+        const cell = byMonth.get(activity.period) ?? { rows: 0, kwh: 0 }
+        cell.rows += 1
+        cell.kwh += activity.kwh
+        byMonth.set(activity.period, cell)
+      }
+      const covered = [...byMonth.keys()].sort()
+      const missing: string[] = []
+      for (let month = 1; month <= 12; month += 1) {
+        const key = `${args.year}-${String(month).padStart(2, '0')}`
+        if (!byMonth.has(key)) missing.push(key)
+      }
+      const rows = covered.reduce((sum, key) => sum + (byMonth.get(key)?.rows ?? 0), 0)
+      const kwh = covered.reduce((sum, key) => sum + (byMonth.get(key)?.kwh ?? 0), 0)
+      return { year: args.year, covered_months: covered, missing_months: missing, rows, kwh: Math.round(kwh * 1e6) / 1e6, tco2e: Math.round(emissionTco2e(kwh) * 1e9) / 1e9, complete: missing.length === 0 }
+    },
+  })
+
+  return [facilityImport, ingest, ingestPdf, scopeImport, factorImport, matchFactor, calculate, verifyRow, exportWorkpaper, exportEsrs, exportEsrsPack, coverage]
 }
