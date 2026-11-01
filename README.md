@@ -19,11 +19,9 @@
 
 > **Status: alpha / public-synthetic / partial / not counted / not GA.** No customer evidence, customer data, or production-readiness claim.
 
-> 🧊 **FROZEN — 2026-10-31. No new features.** Installable; only genuine breakage is fixed.
+## Maintenance status: ✅ Active
 
-## Maintenance status: 🧊 FROZEN
-
-Frozen on 2026-10-31; the package stays installable, but feature work stops.
+Active since 2026-11-01: feature work, hardening and fresh evidence are in progress.
 
 [English](README.md) · [简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
 
@@ -143,7 +141,7 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 - Runs locally; no network, no model call, no upload.
 - Public/synthetic fixtures only; no customer data, no customer evidence.
 - Alpha/partial; not counted, no GA or production-readiness claim.
-- Frozen packages stay installable; no new features, only genuine breakage fixes.
+- Actively maintained: new features and hardening land in alpha releases.
 
 ## Related work
 

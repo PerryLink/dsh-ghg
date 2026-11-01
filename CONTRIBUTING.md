@@ -5,7 +5,7 @@ Thanks for taking a look at `dsh-ghg`.
 ## Before you start
 
 - This is a **public/synthetic alpha** project, not a production product. Do not send customer data, customer documents, credentials, or private evidence.
-- The project is **frozen** (2026-10-31). Only genuine breakage fixes are considered; do not open feature PRs.
+- The project is actively maintained. Feature PRs are welcome; one logical change per PR, with a local check run.
 - One pull request should do one thing. Keep generated evidence and unrelated formatting out of the diff.
 
 ## Local checks

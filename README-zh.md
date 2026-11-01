@@ -19,11 +19,9 @@
 
 > **状态：alpha / 公开合成 / partial / not counted / 非 GA。** 不含客户证据、客户数据，也不作生产可用声明。
 
-> 🧊 **已冻结 — 2026-10-31。不再加新功能。** 仍可安装；只修真实故障。
+## 维护状态：✅ 活跃
 
-## 维护状态：🧊 已冻结
-
-2026-10-31 冻结；包仍可安装，但不再加新功能。
+2026-11-01 起恢复活跃维护：新功能、加固与证据持续更新。
 
 [English](README.md) · [简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
 
@@ -143,7 +141,7 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 - 本地运行；不联网、不调用模型、不上传。
 - 只使用公开/合成 fixture；不含客户数据或客户证据。
 - alpha/partial；not counted，不作 GA 或生产可用声明。
-- 冻结包仍可安装；不再加新功能，只修真实故障。
+- 持续维护：新功能与加固随 alpha 版本发布。
 
 ## 相关项目
 
