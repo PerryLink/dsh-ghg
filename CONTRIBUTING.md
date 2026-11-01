@@ -1,3 +1,35 @@
 # Contributing
 
-Apache-2.0; DCO 1.1 (`git commit -s`). No customer data or tokens. Run lint/typecheck/test/gate before PR.
+Thanks for taking a look at `dsh-ghg`.
+
+## Before you start
+
+- This is a **public/synthetic alpha** project, not a production product. Do not send customer data, customer documents, credentials, or private evidence.
+- The project is **frozen** (2026-10-31). Only genuine breakage fixes are considered; do not open feature PRs.
+- One pull request should do one thing. Keep generated evidence and unrelated formatting out of the diff.
+
+## Local checks
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build && pnpm lint && pnpm typecheck && pnpm test
+```
+
+For the suite repositories, also run:
+
+```sh
+node scripts/check.mjs
+npm pack --dry-run
+```
+
+## Pull requests
+
+- Describe the user-visible problem and the failure before the fix.
+- Include a regression test or a fixture-backed reproduction.
+- Update `CHANGELOG.md` for user-visible changes.
+- Do not add a network call, model call, telemetry, or a customer-data path without an explicit design discussion.
+- By contributing, you agree your contribution is licensed under Apache-2.0.
+
+## Security
+
+Do not open a public issue for a vulnerability; see `SECURITY.md`.

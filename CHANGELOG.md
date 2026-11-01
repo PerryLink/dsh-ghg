@@ -1,28 +1,24 @@
 # Changelog
 
-## 0.1.0-alpha.6 — 2026-10-31
+All notable changes to `dsh-ghg` are documented here. The format follows Keep a Changelog; this project uses alpha versions.
 
-- Added pdfjs-dist to third-party notices; no behavior change.
+## [0.1.0-alpha.10] — 2026-11-01
 
-## 0.1.0-alpha.5 — 2026-10-31
+### Added
 
-- Added `ghg.scope_import` for public/synthetic Scope 1/3 values in ESRS pack; 8 gate rows.
+- Five-language READMEs: English, 简体中文, Español, Português, हिन्दी.
+- Local workflow SVG at `docs/assets/dsh-ghg-flow.svg`.
+- Family cross-links (domain index, checker family, `dsh-kit`), compatibility, permissions, and related-work sections.
+- Standard repository files: `SECURITY.md`, `PRIVACY.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, and `icon.svg`.
 
-## 0.1.0-alpha.4 — 2026-10-31
+### Changed
 
-- Added `ghg.ingest_pdf` (pdfjs-dist, text-based PDFs only); 7 gate rows.
+- README aligned with the PerryLink DSH checker/plugin family style; package remains public/synthetic, alpha, not GA.
 
-## 0.1.0-alpha.3 — 2026-10-31
+### Maintenance
 
-- Added `ghg.export_esrs_pack` partial 4-sheet ESRS E1 workbook; 6 gate rows.
+- Frozen on 2026-10-31: no new features; only genuine breakage fixes.
 
-## 0.1.0-alpha.2 — 2026-10-31
+## [Earlier]
 
-- Added versioned `ghg.factor_import`; `ghg.calculate` accepts `factor_id`; 5 gate rows.
-
-## 0.1.0-alpha.1 — 2026-10-31
-
-- Added `ghg.export_esrs` partial ESRS E1 summary (Scope 2 only; Scope 1/3 not in boundary).
-
-## 0.1.0-alpha.0 — 2026-10-31
-- First S1: electricity CSV, public factor, location calculation, verify, 3-sheet workpaper.
+Earlier alpha builds are available from npm and GitHub Releases; this file starts at the family-standard documentation wave.
