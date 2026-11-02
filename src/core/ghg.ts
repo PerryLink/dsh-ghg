@@ -45,6 +45,7 @@ export type GhgErrorCode =
   | 'E_GHG_FACTOR_UNRESOLVED'
   | 'E_GHG_RECALC_MISMATCH'
   | 'E_GHG_EXPORT_FAILED'
+  | 'E_GHG_PATH_INVALID'
   | 'E_GHG_PATH_NOT_ALLOWED'
 
 export class GhgError extends Error {
@@ -64,19 +65,27 @@ export function emissionTco2e(kwh: number, factorValue = FACTOR_VALUE_KG_PER_KWH
   return Math.round((kwh * factorValue / 1000) * 1e6) / 1e6
 }
 
+/** Upper bound on imported activity rows; protects against memory/CPU abuse on huge CSVs. */
+export const CSV_MAX_ROWS = 50_000
+
 export function parseCsv(text: string): Array<{ date: string; kwh: number }> {
-  const lines = text.trim().split(/\r?\n/).filter(Boolean)
+  const lines = text.replace(/^\uFEFF/, '').trim().split(/\r?\n/).filter((line) => line.trim() !== '')
   if (lines.length < 2) throw new GhgError('E_GHG_BILL_INCOMPLETE', 'CSV needs header + rows')
   const header = lines[0]!.split(',').map((value) => value.trim().toLowerCase())
   const dateIndex = header.indexOf('date') >= 0 ? header.indexOf('date') : header.indexOf('month')
   const kwhIndex = header.indexOf('kwh')
   if (dateIndex < 0 || kwhIndex < 0) throw new GhgError('E_GHG_UNIT_MISMATCH', 'CSV header must include date/month and kwh')
+  const dataLines = lines.slice(1)
+  if (dataLines.length > CSV_MAX_ROWS) throw new GhgError('E_GHG_BILL_INCOMPLETE', `CSV exceeds ${CSV_MAX_ROWS} rows`)
   const rows: Array<{ date: string; kwh: number }> = []
-  for (const line of lines.slice(1)) {
+  for (const [index, line] of dataLines.entries()) {
     const cells = line.split(',').map((value) => value.trim())
+    // Hand-written split(',') silently shifts columns when a cell is missing; require the exact width.
+    if (cells.length !== header.length) throw new GhgError('E_GHG_BILL_INCOMPLETE', `row ${index + 2}: expected ${header.length} columns, got ${cells.length}`)
     const date = cells[dateIndex] ?? ''
     const raw = cells[kwhIndex] ?? ''
     if (!/^\d{4}-\d{2}(-\d{2})?$/.test(date)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `bad date: ${date}`)
+    if (raw === '') throw new GhgError('E_GHG_BILL_INCOMPLETE', `row ${index + 2}: empty kWh`)
     if (raw.includes('mwh') || raw.includes('MWh')) throw new GhgError('E_GHG_UNIT_MISMATCH', 'use kWh, not MWh')
     const kwh = Number(raw)
     if (!Number.isFinite(kwh) || kwh < 0) throw new GhgError('E_GHG_UNIT_MISMATCH', `bad kWh: ${raw}`)

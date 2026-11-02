@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.1.0-alpha.15] — 2026-11-01
+## [0.1.0-alpha.16] — 2026-11-01
+
+### Security / Fixes
+
+- Path-traversal guard on exports, strict CSV parsing (no empty/Infinity readings), deterministic activity ids so a repeat import is idempotent, and a row cap.
+
 
 ### Added
 

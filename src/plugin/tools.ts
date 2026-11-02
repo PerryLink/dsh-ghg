@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import * as XLSX from 'xlsx'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv, parseElectricityPdfText, summarizeScope3 } from '../core/ghg.js'
-import { newId, type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type ScopeRecord, type Table } from './storage.js'
+import { safeExportPath } from '../core/safe-path.js'
+import { type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type ScopeRecord, type Table } from './storage.js'
 
 export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord>; scopes?: Table<ScopeRecord> }
 const text = (value: string) => [{ type: 'text' as const, text: value }]
@@ -32,19 +33,23 @@ export function createTools(deps: ToolDeps) {
     name: 'ghg.ingest',
     description: 'Ingest an electricity CSV (date/month,kwh) for one facility/period; validates units and stores activity rows with an evidence hash. No PDF/OCR in S1.',
     parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, csv_text: { type: 'string', required: true } },
-    output: { schema: { type: 'object', additionalProperties: false, properties: { activity_ids: { type: 'array', items: { type: 'string' }, required: true }, rows: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`ingested ${v.rows} electricity rows`) },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { activity_ids: { type: 'array', items: { type: 'string' }, required: true }, rows: { type: 'number', required: true }, skipped: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`ingested ${v.rows} electricity rows (skipped ${v.skipped})`) },
     async execute(args) {
       if (!deps.facilities.get(args.facility_id)) throw new GhgError('E_GHG_FACILITY_NOT_FOUND', `unknown facility: ${args.facility_id}`)
       requirePeriod(args.period)
       const rows = parseCsv(args.csv_text)
       const evidence = sha256(args.csv_text)
       const ids: string[] = []
-      for (const row of rows) {
+      let skipped = 0
+      for (const [index, row] of rows.entries()) {
         if (!row.date.startsWith(args.period)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `row ${row.date} is outside ${args.period}`)
-        const record: ActivityRecord = { activity_id: newId('act'), facility_id: args.facility_id, period: args.period, date: row.date, kwh: row.kwh, unit: 'kWh', evidence_sha256: evidence, created_at: now() }
+        // Deterministic id: re-ingesting the same file yields the same keys, so rows are skipped instead of duplicated/overwritten.
+        const activity_id = `act_${sha256([args.facility_id, args.period, row.date, row.kwh, evidence, index].join('|')).slice(0, 16)}`
+        if (deps.activities.get(activity_id)) { skipped += 1; continue }
+        const record: ActivityRecord = { activity_id, facility_id: args.facility_id, period: args.period, date: row.date, kwh: row.kwh, unit: 'kWh', evidence_sha256: evidence, created_at: now() }
         await deps.activities.put(record.activity_id, record); ids.push(record.activity_id)
       }
-      return { activity_ids: ids, rows: ids.length, evidence_sha256: evidence }
+      return { activity_ids: ids, rows: ids.length, skipped, evidence_sha256: evidence }
     },
   })
 
@@ -71,7 +76,7 @@ export function createTools(deps: ToolDeps) {
     name: 'ghg.ingest_pdf',
     description: 'Extract date/kWh rows from a text-based PDF using pdfjs-dist; public/synthetic input only. Local R1 write; no OCR.',
     parameters: { pdf_base64: { type: 'string', required: true }, facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
-    output: { schema: { type: 'object', additionalProperties: false, properties: { rows: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`PDF rows=${v.rows}`) },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { rows: { type: 'number', required: true }, skipped: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`PDF rows=${v.rows} skipped=${v.skipped}`) },
     async execute(args) {
       if (!deps.facilities.get(args.facility_id)) throw new GhgError('E_GHG_FACILITY_NOT_FOUND', `unknown facility: ${args.facility_id}`)
       requirePeriod(args.period)
@@ -84,12 +89,15 @@ export function createTools(deps: ToolDeps) {
         const page = await pdf.getPage(pageNo); const content = await page.getTextContent(); text += content.items.map((item: any) => item.str ?? '').join('\n') + '\n'
       }
       const rows = parseElectricityPdfText(text)
-      const evidence = sha256(buffer); let inserted = 0
-      for (const row of rows) {
-        const activity: ActivityRecord = { activity_id: newId('act'), facility_id: args.facility_id, period: args.period, date: row.date, kwh: row.kwh, unit: 'kWh', evidence_sha256: evidence, created_at: now() }
+      const evidence = sha256(buffer); let inserted = 0; let skipped = 0
+      for (const [index, row] of rows.entries()) {
+        if (!row.date.startsWith(args.period)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `row ${row.date} is outside ${args.period}`)
+        const activity_id = `act_${sha256([args.facility_id, args.period, row.date, row.kwh, evidence, index].join('|')).slice(0, 16)}`
+        if (deps.activities.get(activity_id)) { skipped += 1; continue }
+        const activity: ActivityRecord = { activity_id, facility_id: args.facility_id, period: args.period, date: row.date, kwh: row.kwh, unit: 'kWh', evidence_sha256: evidence, created_at: now() }
         await deps.activities.put(activity.activity_id, activity); inserted += 1
       }
-      return { rows: inserted, evidence_sha256: evidence }
+      return { rows: inserted, skipped, evidence_sha256: evidence }
     },
   })
 
@@ -159,8 +167,8 @@ export function createTools(deps: ToolDeps) {
       XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(facilities.map((f) => ({ facility_id: f.facility_id, name: f.name, site: f.site, region: f.region }))), 'Facilities')
       XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(activities.map((a) => ({ activity_id: a.activity_id, date: a.date, kwh: a.kwh, evidence_sha256: a.evidence_sha256 }))), 'Activities')
       XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(lines.map((l) => ({ line_id: l.line_id, activity_id: l.activity_id, kwh: l.kwh, factor_id: l.factor_id, factor_value_kg_per_kwh: l.factor_value_kg_per_kwh, emissions_tco2e: l.emissions_tco2e, state: l.state }))), 'Emissions')
-      const dir = path.join(deps.baseDir, 'exports'); await mkdir(dir, { recursive: true })
-      const filePath = path.join(dir, `${args.facility_id}-${args.period}.xlsx`)
+      const dir = path.join(deps.baseDir, 'exports')
+      const filePath = await safeExportPath(dir, `${args.facility_id}-${args.period}.xlsx`)
       const buffer = Buffer.from(XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' }))
       await writeFile(filePath, buffer)
       return { path: filePath, sha256: sha256(buffer), sheets: workbook.SheetNames.length }
@@ -179,8 +187,8 @@ export function createTools(deps: ToolDeps) {
       if (lines.length === 0) throw new GhgError('E_GHG_BILL_INCOMPLETE', `no emission lines for ${args.period}`)
       const scope2 = Math.round(lines.reduce((sum, line) => sum + line.emissions_tco2e, 0) * 1e6) / 1e6
       const csv = ['esrs_e1_field,value', `period,${args.period}`, `scope1_tco2e,0`, `scope2_tco2e,${scope2}`, `scope3_tco2e,0`, `boundary,partial`, `data_quality,partial`, `factor_id,${FACTOR_ID}`, `rows,${lines.length}`].join('\n') + '\n'
-      const dir = path.join(deps.baseDir, 'exports'); await mkdir(dir, { recursive: true })
-      const file = path.join(dir, `esrs-e1-${args.period}.csv`); await writeFile(file, csv)
+      const dir = path.join(deps.baseDir, 'exports')
+      const file = await safeExportPath(dir, `esrs-e1-${args.period}.csv`); await writeFile(file, csv)
       return { path: file, sha256: sha256(csv), scope2_tco2e: scope2, rows: lines.length }
     },
   })
@@ -218,8 +226,8 @@ export function createTools(deps: ToolDeps) {
         { item: 'exclusions', value: 'Scope 1, Scope 3, non-electricity' },
       ]), 'Data Quality')
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lines.map((line) => ({ line_id: line.line_id, facility_id: line.facility_id, period: line.period, kwh: line.kwh, factor_id: line.factor_id, factor_value_kg_per_kwh: line.factor_value_kg_per_kwh, emissions_tco2e: line.emissions_tco2e }))), 'Lines')
-      const dir = path.join(deps.baseDir, 'exports'); await mkdir(dir, { recursive: true })
-      const file = path.join(dir, `esrs-e1-pack-${args.period}.xlsx`); const buffer = Buffer.from(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })); await writeFile(file, buffer)
+      const dir = path.join(deps.baseDir, 'exports')
+      const file = await safeExportPath(dir, `esrs-e1-pack-${args.period}.xlsx`); const buffer = Buffer.from(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })); await writeFile(file, buffer)
       return { path: file, sha256: sha256(buffer), sheets: wb.SheetNames.length, scope2_tco2e: scope2 }
     },
   })
