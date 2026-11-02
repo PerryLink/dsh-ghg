@@ -1,16 +1,24 @@
 import { createHash } from 'node:crypto'
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import * as XLSX from 'xlsx'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { FACTOR_ID, FACTOR_SOURCE, FACTOR_UNIT, FACTOR_VALUE_KG_PER_KWH, GhgError, emissionTco2e, parseCsv, parseElectricityPdfText, summarizeScope3 } from '../core/ghg.js'
 import { safeExportPath } from '../core/safe-path.js'
+import { writeWorkbook } from '../core/xlsx-lite.js'
 import { type ActivityRecord, type FacilityRecord, type FactorRecord, type LineRecord, type ScopeRecord, type Table } from './storage.js'
 
 export interface ToolDeps { facilities: Table<FacilityRecord>; activities: Table<ActivityRecord>; lines: Table<LineRecord>; baseDir: string; factors?: Table<FactorRecord>; scopes?: Table<ScopeRecord> }
 const text = (value: string) => [{ type: 'text' as const, text: value }]
 const sha256 = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 const now = () => new Date().toISOString()
+const toRows = <T extends object>(items: T[]): (string | number)[][] => {
+  if (items.length === 0) return []
+  const headers = Object.keys(items[0]!) as (keyof T & string)[]
+  return [headers, ...items.map((item) => headers.map((key) => {
+    const value = item[key] as unknown
+    return typeof value === 'number' ? value : String(value ?? '')
+  }))]
+}
 function requirePeriod(period: string) { if (!/^\d{4}-\d{2}$/.test(period)) throw new GhgError('E_GHG_BILL_INCOMPLETE', `bad period: ${period}`) }
 
 export function createTools(deps: ToolDeps) {
@@ -163,15 +171,16 @@ export function createTools(deps: ToolDeps) {
       const facilities = [...deps.facilities.entries()].map(([, value]) => value)
       const activities = [...deps.activities.entries()].map(([, value]) => value).filter((a) => a.facility_id === args.facility_id && a.period === args.period)
       const lines = [...deps.lines.entries()].map(([, value]) => value).filter((l) => l.facility_id === args.facility_id && l.period === args.period)
-      const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(facilities.map((f) => ({ facility_id: f.facility_id, name: f.name, site: f.site, region: f.region }))), 'Facilities')
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(activities.map((a) => ({ activity_id: a.activity_id, date: a.date, kwh: a.kwh, evidence_sha256: a.evidence_sha256 }))), 'Activities')
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(lines.map((l) => ({ line_id: l.line_id, activity_id: l.activity_id, kwh: l.kwh, factor_id: l.factor_id, factor_value_kg_per_kwh: l.factor_value_kg_per_kwh, emissions_tco2e: l.emissions_tco2e, state: l.state }))), 'Emissions')
+      const sheets = [
+        { name: 'Facilities', rows: toRows(facilities.map((f) => ({ facility_id: f.facility_id, name: f.name, site: f.site, region: f.region }))) },
+        { name: 'Activities', rows: toRows(activities.map((a) => ({ activity_id: a.activity_id, date: a.date, kwh: a.kwh, evidence_sha256: a.evidence_sha256 }))) },
+        { name: 'Emissions', rows: toRows(lines.map((l) => ({ line_id: l.line_id, activity_id: l.activity_id, kwh: l.kwh, factor_id: l.factor_id, factor_value_kg_per_kwh: l.factor_value_kg_per_kwh, emissions_tco2e: l.emissions_tco2e, state: l.state }))) },
+      ]
       const dir = path.join(deps.baseDir, 'exports')
       const filePath = await safeExportPath(dir, `${args.facility_id}-${args.period}.xlsx`)
-      const buffer = Buffer.from(XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' }))
+      const buffer = writeWorkbook(sheets)
       await writeFile(filePath, buffer)
-      return { path: filePath, sha256: sha256(buffer), sheets: workbook.SheetNames.length }
+      return { path: filePath, sha256: sha256(buffer), sheets: sheets.length }
     },
   })
 
@@ -206,29 +215,42 @@ export function createTools(deps: ToolDeps) {
       const scope2 = Math.round(lines.reduce((sum, line) => sum + line.emissions_tco2e, 0) * 1e6) / 1e6
       const scope = deps.scopes?.get(args.period)
       const factors = [...new Set(lines.map((line) => line.factor_id))].join(',')
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
-        { field: 'period', value: args.period, note: 'public/synthetic' },
-        { field: 'scope1_tco2e', value: scope?.scope1_tco2e ?? 0, note: scope ? `public/synthetic: ${scope.source}` : 'not in boundary' },
-        { field: 'scope2_tco2e', value: scope2, note: 'location-based electricity' },
-        { field: 'scope3_tco2e', value: scope?.scope3_tco2e ?? 0, note: scope ? `public/synthetic: ${scope.source}` : 'not in boundary' },
-        { field: 'boundary', value: 'partial', note: 'Scope 2 only' },
-      ]), 'E1-6 Summary')
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
-        { item: 'factor_ids', value: factors },
-        { item: 'factor_unit', value: FACTOR_UNIT },
-        { item: 'method', value: 'kWh × factor / 1000' },
-        { item: 'source', value: 'public reference / synthetic test factors' },
-      ]), 'Methodology')
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
-        { item: 'completeness', value: 'partial' },
-        { item: 'assurance', value: 'not assurance-grade' },
-        { item: 'exclusions', value: 'Scope 1, Scope 3, non-electricity' },
-      ]), 'Data Quality')
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lines.map((line) => ({ line_id: line.line_id, facility_id: line.facility_id, period: line.period, kwh: line.kwh, factor_id: line.factor_id, factor_value_kg_per_kwh: line.factor_value_kg_per_kwh, emissions_tco2e: line.emissions_tco2e }))), 'Lines')
+      const sheets = [
+        {
+          name: 'E1-6 Summary',
+          rows: toRows([
+            { field: 'period', value: args.period, note: 'public/synthetic' },
+            { field: 'scope1_tco2e', value: scope?.scope1_tco2e ?? 0, note: scope ? `public/synthetic: ${scope.source}` : 'not in boundary' },
+            { field: 'scope2_tco2e', value: scope2, note: 'location-based electricity' },
+            { field: 'scope3_tco2e', value: scope?.scope3_tco2e ?? 0, note: scope ? `public/synthetic: ${scope.source}` : 'not in boundary' },
+            { field: 'boundary', value: 'partial', note: 'Scope 2 only' },
+          ]),
+        },
+        {
+          name: 'Methodology',
+          rows: toRows([
+            { item: 'factor_ids', value: factors },
+            { item: 'factor_unit', value: FACTOR_UNIT },
+            { item: 'method', value: 'kWh × factor / 1000' },
+            { item: 'source', value: 'public reference / synthetic test factors' },
+          ]),
+        },
+        {
+          name: 'Data Quality',
+          rows: toRows([
+            { item: 'completeness', value: 'partial' },
+            { item: 'assurance', value: 'not assurance-grade' },
+            { item: 'exclusions', value: 'Scope 1, Scope 3, non-electricity' },
+          ]),
+        },
+        {
+          name: 'Lines',
+          rows: toRows(lines.map((line) => ({ line_id: line.line_id, facility_id: line.facility_id, period: line.period, kwh: line.kwh, factor_id: line.factor_id, factor_value_kg_per_kwh: line.factor_value_kg_per_kwh, emissions_tco2e: line.emissions_tco2e }))),
+        },
+      ]
       const dir = path.join(deps.baseDir, 'exports')
-      const file = await safeExportPath(dir, `esrs-e1-pack-${args.period}.xlsx`); const buffer = Buffer.from(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })); await writeFile(file, buffer)
-      return { path: file, sha256: sha256(buffer), sheets: wb.SheetNames.length, scope2_tco2e: scope2 }
+      const file = await safeExportPath(dir, `esrs-e1-pack-${args.period}.xlsx`); const buffer = writeWorkbook(sheets); await writeFile(file, buffer)
+      return { path: file, sha256: sha256(buffer), sheets: sheets.length, scope2_tco2e: scope2 }
     },
   })
 

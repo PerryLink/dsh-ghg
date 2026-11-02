@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import * as XLSX from 'xlsx'
+import { readWorkbook } from '../lib/core/xlsx-lite.js'
 import { createTools } from '../lib/plugin/tools.js'
 
 class FakeTable {
@@ -17,6 +17,12 @@ function csv(rows = 30) {
   const lines = ['date,kwh']
   for (let i = 1; i <= rows; i += 1) lines.push(`2026-01-${String(i).padStart(2, '0')},${100 + i}`)
   return lines.join('\n')
+}
+function sheetRecords(workbook, name) {
+  const sheet = workbook.sheets.find((entry) => entry.name === name)
+  assert.ok(sheet, `missing sheet ${name}`)
+  const [header = [], ...rows] = sheet.rows
+  return rows.map((row) => Object.fromEntries(header.map((key, index) => [key, row[index]])))
 }
 async function setup(dir) {
   const tools = createTools({ facilities: new FakeTable(), activities: new FakeTable(), lines: new FakeTable(), baseDir: path.join(dir, 'store') })
@@ -42,8 +48,9 @@ test('30 electricity rows -> calculate -> verify -> 3-sheet xlsx', async () => {
     assert.equal(verified.recalc_diff, 0)
     const exported = await byName['ghg.export_workpaper'].execute({ facility_id: 'F1', period: '2026-01' }, exec)
     assert.equal(exported.sheets, 3)
-    const wb = XLSX.read(await readFile(exported.path), { type: 'buffer' })
-    assert.deepEqual(wb.SheetNames, ['Facilities', 'Activities', 'Emissions'])
+    const wb = readWorkbook(await readFile(exported.path))
+    assert.deepEqual(wb.sheets.map((sheet) => sheet.name), ['Facilities', 'Activities', 'Emissions'])
+    assert.deepEqual(wb.sheets.map((sheet) => sheet.rows.length), [2, 31, 31])
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
 
@@ -126,8 +133,9 @@ test('partial ESRS E1 xlsx pack', async () => {
     const pack = await byName['ghg.export_esrs_pack'].execute({ period: '2026-01' }, exec)
     assert.ok(pack.scope2_tco2e > 0)
     assert.equal(pack.sheets, 4)
-    const wb = XLSX.read(await readFile(pack.path), { type: 'buffer' })
-    assert.deepEqual(wb.SheetNames, ['E1-6 Summary', 'Methodology', 'Data Quality', 'Lines'])
+    const wb = readWorkbook(await readFile(pack.path))
+    assert.deepEqual(wb.sheets.map((sheet) => sheet.name), ['E1-6 Summary', 'Methodology', 'Data Quality', 'Lines'])
+    assert.deepEqual(wb.sheets.map((sheet) => sheet.rows.length), [6, 5, 4, 31])
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
 
@@ -164,8 +172,7 @@ test('public/synthetic Scope 1/3 values appear in ESRS pack', async () => {
     await by['ghg.calculate'].execute({ facility_id: 'F1', period: '2026-01' }, exec)
     await by['ghg.scope_import'].execute({ period: '2026-01', scope1_tco2e: 1.25, scope3_tco2e: 2.5, source: 'synthetic test' }, exec)
     const pack = await by['ghg.export_esrs_pack'].execute({ period: '2026-01' }, exec)
-    const wb = XLSX.read(await readFile(pack.path), { type: 'buffer' })
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets['E1-6 Summary'])
+    const rows = sheetRecords(readWorkbook(await readFile(pack.path)), 'E1-6 Summary')
     assert.ok(rows.some((row) => row.field === 'scope1_tco2e' && row.value === 1.25))
     assert.ok(rows.some((row) => row.field === 'scope3_tco2e' && row.value === 2.5))
   } finally { await rm(dir, { recursive: true, force: true }) }
