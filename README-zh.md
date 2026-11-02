@@ -31,6 +31,74 @@ dsh plugin --profile <profile> add dsh-ghg
 
 </div>
 
+## 一句话
+
+把全年电费台账折算成范围二排放，逐行复算并导出底稿和 ESRS E1 摘要。
+
+## 适合 / 不适合
+
+- **适合**：一家或几家工厂的月度电费台账（CSV）；年度盘查前先算范围二、核对 12 个月有没有缺月。
+- **不适合**：PDF 扫描件 / 手写电费单（只支持文本型 PDF，无 OCR）；直连电网或 ERP（本包不连外部系统）；正式鉴证或对外披露定稿。
+
+## 输入
+
+- 格式：UTF-8 CSV，表头含 `date`（或 `month`）和 `kwh`；日期用 `YYYY-MM-DD`，电量写 kWh 数值。工厂清单与 Scope 3 汇总用 JSON。
+- 大小：单批 ≤ 5 MB（约 5 万行）；自带样例 12 个月、12 行，约 0.2 KB。
+- 来源：从电费单或能源平台导出后另存为 CSV；原文件不会被修改。
+
+## 输出
+
+- 终端摘要：导入行数、全年 kWh 与 tCO2e、逐行复算差异、覆盖月份、Scope 3 分类汇总。
+- 文件：3 sheet 底稿 `xlsx`（Facilities / Activities / Emissions）与 4 sheet 的 ESRS E1 包（摘要 / 方法 / 数据质量 / 明细），落在 `$DSH_HOME/storages/dsh-ghg/exports/`；不改原台账。
+- 样例金标：`samples/quickstart/expected/result.json`（由真实运行产生）。
+
+## 示例
+
+直接复制下面这句：
+
+> 我有一份全年电费台账，帮我折算成范围二排放，逐行复算后导出底稿和 ESRS E1 摘要。
+
+用自带样例复跑并核对金标：
+
+```sh
+node samples/quickstart/run.mjs --check
+```
+
+![dsh-ghg quickstart 真实运行输出](docs/assets/quickstart.png)
+
+截图就是上面这条命令的真实输出；金标比对结果见 `samples/quickstart/expected/result.json`。
+
+## 权限
+
+读：用户指定的电费台账 CSV、工厂清单、文本型 PDF 电费单；不读其他目录
+写：$DSH_HOME/storages/dsh-ghg/exports/（底稿 xlsx、ESRS E1 包）；不改原台账
+联网：否
+外部系统：无
+
+写文件的工具 `ghg.facility_import`、`ghg.ingest`、`ghg.ingest_pdf`、`ghg.factor_import`、`ghg.scope_import`、`ghg.calculate`、`ghg.verify_row`、`ghg.export_workpaper`、`ghg.export_esrs`、`ghg.export_esrs_pack` 标 **R1**（本地写）；`ghg.match_factor`、`ghg.period_coverage`、`ghg.scope3_summary` 标 **R0**（只读）。
+
+## FAQ
+
+### 1. 装不上怎么办？
+
+确认 Node `>=24.9 <25`、DSH `>=0.2.1-rc.3 <0.4.0`，再执行 `dsh plugin --profile <profile> add dsh-ghg`。仍失败先看 `TROUBLESHOOTING.md` 第 1 条。
+
+### 2. 结果不对怎么办？
+
+先跑 `node samples/quickstart/run.mjs --check`；再检查表头是否为 `date,kwh`、电量单位是否写成了 MWh。折算公式是 `kWh × 0.5703 ÷ 1000 = tCO2e`（默认中国电网因子，可换自定义因子）。
+
+### 3. 能处理我的文件吗？
+
+能。单批 ≤5 MB 的 UTF-8 CSV 与文本型 PDF 在本地读、本地算，不上传、不联网。真实电费单不要贴进 issue。
+
+### 4. 会改我的台账吗？
+
+不会。只写 DSH 自己的 `$DSH_HOME/storages/dsh-ghg/exports/`，原 CSV 不动。
+
+## 版本
+
+`0.1.0-alpha.18` · 27 项测试通过（`node --test test/*.test.mjs`）。
+
 > ⭐ 如果它帮到了你，点个 star 会让下一个人更容易找到它；没有任何功能被 star 解锁。
 
 ![Workflow diagram for dsh-ghg: local input, plugin, local output.](docs/assets/dsh-ghg-flow.svg)

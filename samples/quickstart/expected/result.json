@@ -1,0 +1,92 @@
+{
+  "sample": "samples/quickstart/input/electricity-2026.csv",
+  "facility": {
+    "facility_id": "CN-SUZ-01",
+    "name": "苏州一厂"
+  },
+  "months": 12,
+  "ingest": {
+    "rows": 12,
+    "skipped": 0
+  },
+  "factor": {
+    "factor_id": "electricity-location-cn-2022-v1",
+    "value_kg_per_kwh": 0.5703,
+    "unit": "kgCO2e/kWh"
+  },
+  "emissions": {
+    "lines": 12,
+    "total_tco2e": 804.123
+  },
+  "verify": {
+    "checked": 12,
+    "mismatches": [],
+    "recalc_diff": 0
+  },
+  "exports": {
+    "workpaper": {
+      "sheets": 3,
+      "file": "CN-SUZ-01-2026-12.xlsx"
+    },
+    "esrs_pack": {
+      "sheets": 4,
+      "scope2_tco2e": 65.5845,
+      "file": "esrs-e1-pack-2026-12.xlsx"
+    }
+  },
+  "coverage": {
+    "year": "2026",
+    "covered_months": 12,
+    "missing_months": [],
+    "rows": 12,
+    "kwh": 1410000,
+    "tco2e": 804.123,
+    "complete": true
+  },
+  "scope3": {
+    "total_tco2e": 759,
+    "reported_categories": 6,
+    "categories": [
+      {
+        "category": 1,
+        "name": "purchased goods and services",
+        "tco2e": 520.5
+      },
+      {
+        "category": 2,
+        "name": "capital goods",
+        "tco2e": 88.25
+      },
+      {
+        "category": 4,
+        "name": "upstream transportation and distribution",
+        "tco2e": 41
+      },
+      {
+        "category": 6,
+        "name": "business travel",
+        "tco2e": 12.75
+      },
+      {
+        "category": 7,
+        "name": "employee commuting",
+        "tco2e": 30
+      },
+      {
+        "category": 9,
+        "name": "downstream transportation and distribution",
+        "tco2e": 66.5
+      }
+    ],
+    "issues": [
+      {
+        "code": "E_GHG_SCOPE3_CATEGORY",
+        "detail": "category 16 is outside 1-15"
+      },
+      {
+        "code": "E_GHG_SCOPE3_VALUE",
+        "detail": "category 3 has a non-finite or negative value"
+      }
+    ]
+  }
+}

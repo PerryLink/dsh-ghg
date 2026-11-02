@@ -1,6 +1,6 @@
 {
   "name": "dsh-ghg",
-  "version": "0.1.0-alpha.17",
+  "version": "0.1.0-alpha.18",
   "description": "Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack.",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -28,11 +28,28 @@
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "CHANGELOG.md",
-    "icon.svg"
+    "icon.svg",
+    "samples",
+    "TROUBLESHOOTING.md",
+    "screenshots.json"
   ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "demo": {
+      "sample": "samples/quickstart/input/electricity-2026.csv",
+      "prompt": "我有一份全年电费台账，帮我折算成范围二排放，逐行复算后导出底稿和 ESRS E1 摘要。",
+      "expect": "samples/quickstart/expected/result.json",
+      "screenshot": "docs/assets/quickstart.png",
+      "reads": [
+        "用户指定的电费台账 CSV、工厂清单与 Scope 3 汇总（样例：samples/quickstart/input/）"
+      ],
+      "writes": [
+        "$DSH_HOME/storages/dsh-ghg/exports/"
+      ],
+      "network": false,
+      "external": []
     }
   },
   "engines": {

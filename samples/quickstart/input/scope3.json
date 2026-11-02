@@ -1,0 +1,10 @@
+[
+  { "category": 1, "tco2e": 520.5, "source": "synthetic" },
+  { "category": 2, "tco2e": 88.25 },
+  { "category": 4, "tco2e": 41 },
+  { "category": 6, "tco2e": 12.75 },
+  { "category": 7, "tco2e": 30 },
+  { "category": 9, "tco2e": 66.5 },
+  { "category": 16, "tco2e": 1 },
+  { "category": 3, "tco2e": -5 }
+]

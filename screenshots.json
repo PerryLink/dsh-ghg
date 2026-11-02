@@ -1,5 +1,18 @@
 [
   {
+    "path": "docs/assets/quickstart.png",
+    "kind": "quickstart",
+    "alt": "dsh-ghg quickstart terminal output",
+    "caption": "Real command: node samples/quickstart/run.mjs --check — synthetic 2026 electricity bill, 12 months / 12 rows / 1,410,000 kWh -> 804.123 tCO2e, 12 lines recalculated with zero mismatch, 3-sheet workpaper + 4-sheet partial ESRS E1 pack, coverage 12/12 months. Rendered from the captured terminal output.",
+    "command": "node samples/quickstart/run.mjs --check",
+    "run_at": "2026-11-02T14:17:26Z",
+    "output_sha256": "5b2fae536d9cd5a7879eb0d48362c24ca02467dd3a852aea59aed9e5c6e04880",
+    "output_path": "samples/quickstart/expected/result.json",
+    "log": "docs/assets/quickstart.log",
+    "log_sha256": "2d5aa8a8bbe2f04e700e148328540c9e265f486f724c43846fc70b08b100e8af",
+    "image_sha256": "da1a10cd8383fb9d0dd262d6b7b1f635f11f3d48876da6e56292271e45eff23d"
+  },
+  {
     "path": "docs/assets/dsh-ghg-capability.png",
     "kind": "capability",
     "alt": "dsh-ghg real test run",
