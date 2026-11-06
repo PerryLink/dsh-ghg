@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="660" viewBox="0 0 1100 660" role="img" aria-label="dsh-ghg structure: a twelve-row monthly close ledger (one 2026 month per row, real kWh and real per-line tCO2e); the tCO2e column is kWh times the public factor 0.5703 divided by 1000; a state gate turns calculated lines into verified only when the recalculation diff is at most 1e-9, and a mismatch keeps the line id and raises E_GHG_RECALC_MISMATCH; exports for period 2026-12 are a 3-sheet workpaper, a 4-sheet partial ESRS E1 pack and a Scope-2-only CSV; two boundary rails note local writes and read-only coverage / Scope 3 meters">
+<title>dsh-ghg: twelve-month close ledger, one verify gate, three local exports</title>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+    <stop offset="0" stop-color="#131a2a"/>
+    <stop offset="1" stop-color="#0c1016"/>
+  </linearGradient>
+  <filter id="soft" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="11" flood-color="#000000" flood-opacity="0.55"/>
+  </filter>
+  <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+    <circle cx="1.4" cy="1.4" r="1.4" fill="#26314a"/>
+  </pattern>
+</defs>
+<rect width="1100" height="660" fill="url(#bg)"/>
+<rect width="1100" height="660" fill="url(#dots)" opacity=".42"/>
+<text x="44" y="60" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="34" font-weight="700" text-anchor="start">dsh-ghg</text>
+<text x="44" y="86" fill="#a8b1c4" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="15" font-weight="400" text-anchor="start">monthly close ledger · one row per month · local only</text>
+<rect x="788" y="38" width="268" height="34" rx="17" fill="#242d42"/>
+<text x="922" y="60" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="middle">2026 · CN-SUZ-01 · 12/12</text>
+<line x1="44" y1="104" x2="1056" y2="104" stroke="#1e2636" stroke-width="1.5"/>
+<g filter="url(#soft)">
+<rect x="40" y="116" width="628" height="444" rx="20" fill="#1b2231" stroke="#2e374b" stroke-width="1.5"/>
+</g>
+<text x="60" y="146" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" font-weight="700" text-anchor="start">MONTHLY CLOSE · 2026</text>
+<text x="648" y="146" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="400" text-anchor="end">12/12 · missing 0</text>
+<text x="60" y="168" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="400" text-anchor="start">facility_import · ingest ×12 · CSV / text PDF · evidence_sha256</text>
+<rect x="352" y="204" width="112" height="294" rx="10" fill="#8496f5" opacity=".055"/>
+<text x="60" y="196" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="400" text-anchor="start">MONTH</text>
+<text x="300" y="196" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="400" text-anchor="end">kWh</text>
+<text x="456" y="196" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="700" text-anchor="end">tCO2e</text>
+<text x="640" y="196" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="400" text-anchor="end">state</text>
+<line x1="60" y1="204" x2="648" y2="204" stroke="#1e2636" stroke-width="1.3"/>
+<text x="60" y="226" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-01</text>
+<text x="300" y="226" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">120,000</text>
+<text x="456" y="226" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">68.436</text>
+<circle cx="572" cy="221" r="3.4" fill="#3fb950"/>
+<text x="582" y="226" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="234" x2="648" y2="234" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="250" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-02</text>
+<text x="300" y="250" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">110,000</text>
+<text x="456" y="250" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">62.733</text>
+<circle cx="572" cy="245" r="3.4" fill="#3fb950"/>
+<text x="582" y="250" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="258" x2="648" y2="258" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="274" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-03</text>
+<text x="300" y="274" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">98,000</text>
+<text x="456" y="274" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">55.8894</text>
+<circle cx="572" cy="269" r="3.4" fill="#3fb950"/>
+<text x="582" y="274" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="282" x2="648" y2="282" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="298" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-04</text>
+<text x="300" y="298" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">95,000</text>
+<text x="456" y="298" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">54.1785</text>
+<circle cx="572" cy="293" r="3.4" fill="#3fb950"/>
+<text x="582" y="298" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="306" x2="648" y2="306" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="322" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-05</text>
+<text x="300" y="322" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">102,000</text>
+<text x="456" y="322" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">58.1706</text>
+<circle cx="572" cy="317" r="3.4" fill="#3fb950"/>
+<text x="582" y="322" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="330" x2="648" y2="330" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="346" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-06</text>
+<text x="300" y="346" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">135,000</text>
+<text x="456" y="346" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">76.9905</text>
+<circle cx="572" cy="341" r="3.4" fill="#3fb950"/>
+<text x="582" y="346" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="354" x2="648" y2="354" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="370" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-07</text>
+<text x="300" y="370" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">148,000</text>
+<text x="456" y="370" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">84.4044</text>
+<circle cx="572" cy="365" r="3.4" fill="#3fb950"/>
+<text x="582" y="370" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="378" x2="648" y2="378" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="394" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-08</text>
+<text x="300" y="394" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">152,000</text>
+<text x="456" y="394" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">86.6856</text>
+<circle cx="572" cy="389" r="3.4" fill="#3fb950"/>
+<text x="582" y="394" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="402" x2="648" y2="402" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="418" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-09</text>
+<text x="300" y="418" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">128,000</text>
+<text x="456" y="418" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">72.9984</text>
+<circle cx="572" cy="413" r="3.4" fill="#3fb950"/>
+<text x="582" y="418" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="426" x2="648" y2="426" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="442" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-10</text>
+<text x="300" y="442" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">108,000</text>
+<text x="456" y="442" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">61.5924</text>
+<circle cx="572" cy="437" r="3.4" fill="#3fb950"/>
+<text x="582" y="442" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="450" x2="648" y2="450" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="466" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-11</text>
+<text x="300" y="466" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">99,000</text>
+<text x="456" y="466" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">56.4597</text>
+<circle cx="572" cy="461" r="3.4" fill="#3fb950"/>
+<text x="582" y="466" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="474" x2="648" y2="474" stroke="#1e2636" stroke-width="1" opacity=".55"/>
+<text x="60" y="490" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="start">2026-12</text>
+<text x="300" y="490" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="400" text-anchor="end">115,000</text>
+<text x="456" y="490" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="600" text-anchor="end">65.5845</text>
+<circle cx="572" cy="485" r="3.4" fill="#3fb950"/>
+<text x="582" y="490" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">verified</text>
+<line x1="60" y1="502" x2="648" y2="502" stroke="#1e2636" stroke-width="1.6"/>
+<text x="60" y="528" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="700" text-anchor="start">Σ 12 rows</text>
+<text x="300" y="528" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="700" text-anchor="end">1,410,000</text>
+<text x="456" y="528" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="700" text-anchor="end">804.123</text>
+<text x="640" y="528" fill="#3fb950" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" text-anchor="end">12/12</text>
+<text x="60" y="546" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">period = YYYY-MM · deterministic activity_id · no duplicates</text>
+<g filter="url(#soft)">
+<rect x="692" y="116" width="368" height="110" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5"/>
+</g>
+<text x="712" y="138" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15.5" font-weight="700" text-anchor="start">FACTOR · R0</text>
+<text x="1040" y="138" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="end">match_factor / factor_import</text>
+<text x="712" y="162" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="700" text-anchor="start">0.5703 kgCO2e/kWh</text>
+<text x="712" y="190" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="400" text-anchor="start">electricity-location-cn-2022-v1</text>
+<text x="712" y="209" fill="#737b8d" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="400" text-anchor="start">public reference · not assurance-grade</text>
+<g filter="url(#soft)">
+<rect x="692" y="238" width="368" height="140" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5"/>
+</g>
+<text x="712" y="260" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15.5" font-weight="700" text-anchor="start">STATE GATE · verify_row</text>
+<text x="712" y="284" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="700" text-anchor="start">calculated → verified</text>
+<text x="712" y="308" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="400" text-anchor="start">recalc = kWh × factor ÷ 1000</text>
+<text x="712" y="326" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="400" text-anchor="start">|recalc − stored| ≤ 1e-9 → verified</text>
+<text x="712" y="348" fill="#d9a03c" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">mismatch keeps line_id + diff</text>
+<text x="712" y="364" fill="#d9a03c" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">E_GHG_RECALC_MISMATCH</text>
+<g filter="url(#soft)">
+<rect x="692" y="390" width="368" height="170" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5"/>
+</g>
+<text x="712" y="412" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15.5" font-weight="700" text-anchor="start">EXPORTS · period 2026-12</text>
+<text x="712" y="437" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="700" text-anchor="start">workpaper · 3 sheets</text>
+<text x="712" y="455" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">Facilities / Activities / Emissions</text>
+<text x="712" y="477" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="700" text-anchor="start">ESRS E1 pack · 4 sheets</text>
+<text x="712" y="495" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">Summary / Methodology / Data Quality / Lines</text>
+<text x="712" y="517" fill="#f0f3f9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" font-weight="400" text-anchor="start">ESRS E1 CSV · Scope 2 only</text>
+<text x="712" y="538" fill="#737b8d" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">safeExportPath · exports/ · R1 write</text>
+<g filter="url(#soft)">
+<rect x="40" y="574" width="620" height="52" rx="16" fill="#1b2231" stroke="#2e374b" stroke-width="1.5"/>
+</g>
+<text x="60" y="596" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="start">LOCAL BOUNDARY · R1</text>
+<text x="60" y="615" fill="#a8b1c4" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="400" text-anchor="start">no network · no model · originals untouched · storage ghg + exports/</text>
+<g filter="url(#soft)">
+<rect x="692" y="574" width="368" height="52" rx="16" fill="#1b2231" stroke="#2e374b" stroke-width="1.5"/>
+</g>
+<text x="712" y="596" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="start">READ-ONLY METERS · R0</text>
+<text x="712" y="615" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">coverage 12/12 · scope3 6/15 · 2 issues</text>
+<text x="44" y="646" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="400" text-anchor="start">ingest_pdf: text PDF only, no OCR · storage domain ghg v1 (5 tables) · 13 ghg.* tools</text>
+</svg>

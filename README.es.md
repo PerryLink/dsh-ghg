@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-flow-dark.svg">
-  <img src="docs/assets/dsh-ghg-flow-light.svg" width="100%" alt="Flujo de datos de dsh-ghg: CSV eléctrico o PDF de texto → ghg.ingest → ghg.calculate → ghg.verify_row → papel de trabajo y paquete parcial ESRS E1; los datos quedan en el dominio de almacenamiento local ghg y en el directorio exports">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-hero-en-dark.webp">
+  <img src="docs/assets/dsh-ghg-hero-en-light.webp" width="100%" alt="Hero de dsh-ghg: título y frases de valor a la izquierda; a la derecha, un gráfico de los 12 meses de 2026 (1,410,000 kWh) con la ecuación 1,410,000 kWh × 0.5703 ÷ 1000 = 804.123 tCO2e, cobertura 12/12, verificación sin diferencias 12/12 y el papel de trabajo de 3 hojas más el paquete parcial ESRS E1 de 4 hojas">
 </picture>
 
 # dsh-ghg
@@ -45,6 +45,11 @@ dsh plugin --profile <name> add dsh-ghg
 Dentro de DSH basta con decir:
 
 > Tengo un año de facturas eléctricas; conviértelas a emisiones de alcance 2, recalcula cada línea y exporta el papel de trabajo y un resumen ESRS E1.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-ghg-flow-v5-light.svg" width="100%" alt="Estructura de dsh-ghg (tablero de cierre mensual): un libro de 12 filas para 2026 con kWh y tCO2e por mes (total 804.123) calculados como kWh × 0.5703 ÷ 1000; la columna derecha reúne la tarjeta de factor (R0 match_factor / R1 factor_import), la puerta de estado verify_row (calculated → verified solo con diferencia cero; si no, E_GHG_RECALC_MISMATCH con line_id) y tres exportaciones de 2026-12 (papel de trabajo de 3 hojas, paquete parcial ESRS E1 de 4 hojas y CSV de alcance 2); dos raíles de frontera cierran el tablero: escritura local y medidores de solo lectura de cobertura y alcance 3">
+</picture>
 
 ## Instalación en tres pasos
 
@@ -309,7 +314,7 @@ Estructura de directorios:
 | `docs/assets/` | Imágenes del README |
 | `evidence/` | Instantáneas de ejecuciones de aceptación (`result.json`) |
 
-Las imágenes del README las genera por programa [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python; los recursos son SVG vectoriales, así que no hace falta Pillow). Volver a ejecutar `python scripts/gen-readme-assets.py` reescribe `docs/assets/dsh-ghg-flow-{light,dark}.svg`; todas las etiquetas son tokens de comando/contabilidad, así que los cinco idiomas comparten el par. El antiguo `docs/assets/dsh-ghg-flow.svg` de una sola versión se conserva para que los enlaces externos no den 404.
+El hero y el diagrama de estructura los genera [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python/Pillow + SVG escrito a mano), que escribe `docs/assets/dsh-ghg-hero-{zh,en}-{light,dark}.webp` y `docs/assets/dsh-ghg-flow-v5-{light,dark}.svg`; el generador es repetible. Las cifras salen del fixture dorado: 12 meses, 1,410,000 kWh, 0.5703 kgCO2e/kWh y 804.123 tCO2e. El par antiguo `docs/assets/dsh-ghg-flow-{light,dark}.svg` y la versión única `dsh-ghg-flow.svg` se conservan para que los enlaces externos no den 404.
 
 Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `ghg`, `esg`, `electricity`, `perrylink`, `esrs`
 

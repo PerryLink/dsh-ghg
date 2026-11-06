@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-flow-dark.svg">
-  <img src="docs/assets/dsh-ghg-flow-light.svg" width="100%" alt="dsh-ghg 数据流：电费 CSV 或文本型 PDF → ghg.ingest → ghg.calculate → ghg.verify_row → 底稿与部分 ESRS E1 包；数据只落在本地 storage domain ghg 与 exports 目录">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-ghg-hero-zh-light.webp" width="100%" alt="dsh-ghg 开头横幅：左侧标题与两行价值句；右侧是 2026 年 12 个月电费柱状图（合计 1,410,000 kWh）逐月折算，公式 1,410,000 kWh × 0.5703 ÷ 1000 = 804.123 tCO2e，并标出 12/12 覆盖、逐行复算 12/12 零差异，以及 3 sheet 底稿与 4 sheet ESRS E1 包">
 </picture>
 
 # dsh-ghg
@@ -45,6 +45,11 @@ dsh plugin --profile <name> add dsh-ghg
 在 DSH 里可以直接说：
 
 > 我有一份全年电费台账，帮我折算成范围二排放，逐行复算后导出底稿和 ESRS E1 摘要。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-ghg-flow-v5-light.svg" width="100%" alt="dsh-ghg 结构图（月度结账记分台）：左侧 2026 年 12 行月度台账逐月列 kWh 与 tCO2e（合计 804.123），按 kWh × 0.5703 ÷ 1000 折算；右侧为因子卡（R0 match_factor / R1 factor_import）、verify_row 状态门（calculated → verified，零差异才通过，不一致保留 line_id 并报 E_GHG_RECALC_MISMATCH）与 2026-12 的三个导出物（3 sheet 底稿、4 sheet 部分 ESRS E1 包、Scope 2 CSV）；底部两条边界：本地写边界与只读 coverage / Scope 3 读数">
+</picture>
 
 ## 三步上手
 
@@ -309,7 +314,7 @@ pnpm run gate:sku02                                      # 验收门禁（写 ev
 | `docs/assets/` | README 配图 |
 | `evidence/` | 验收运行快照（`result.json`） |
 
-配图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python；SVG 为矢量，不需要 Pillow）。重跑 `python scripts/gen-readme-assets.py` 会重写 `docs/assets/dsh-ghg-flow-{light,dark}.svg`；图内只有命令/记账 token，五语共用。旧的单版 `docs/assets/dsh-ghg-flow.svg` 保留不删，避免外链 404。
+开头 hero 与结构图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python/Pillow + 手写 SVG），输出 `docs/assets/dsh-ghg-hero-{zh,en}-{light,dark}.webp` 与 `docs/assets/dsh-ghg-flow-v5-{light,dark}.svg`，可重复执行。图内数字取自金标：12 个月、1,410,000 kWh、0.5703 kgCO2e/kWh、804.123 tCO2e。旧的 `docs/assets/dsh-ghg-flow-{light,dark}.svg` 与单版 `dsh-ghg-flow.svg` 保留不删，避免外链 404。
 
 Topics：`dsh`, `dsh-plugin`, `deepseek-harness`, `ghg`, `esg`, `electricity`, `perrylink`, `esrs`
 

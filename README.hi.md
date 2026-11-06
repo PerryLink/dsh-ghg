@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-flow-dark.svg">
-  <img src="docs/assets/dsh-ghg-flow-light.svg" width="100%" alt="dsh-ghg डेटा प्रवाह: बिजली CSV या टेक्स्ट PDF → ghg.ingest → ghg.calculate → ghg.verify_row → वर्कपेपर और आंशिक ESRS E1 पैक; डेटा स्थानीय ghg स्टोरेज डोमेन और exports निर्देशिका में ही रहता है">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-hero-en-dark.webp">
+  <img src="docs/assets/dsh-ghg-hero-en-light.webp" width="100%" alt="dsh-ghg हीरो: बाईं ओर शीर्षक और मूल्य पंक्तियाँ; दाईं ओर 2026 के 12 महीनों का बिजली चार्ट (1,410,000 kWh), समीकरण 1,410,000 kWh × 0.5703 ÷ 1000 = 804.123 tCO2e, 12/12 कवरेज, 12/12 शून्य-अंतर पुनर्गणना, और 3-शीट कार्यपत्रक तथा 4-शीट आंशिक ESRS E1 पैक">
 </picture>
 
 # dsh-ghg
@@ -45,6 +45,11 @@ dsh plugin --profile <name> add dsh-ghg
 DSH में आप सीधे कह सकते हैं:
 
 > मेरे पास साल भर के बिजली बिल हैं; इन्हें स्कोप 2 उत्सर्जन में बदलें, हर पंक्ति दोबारा गिनें, और वर्कपेपर तथा ESRS E1 सारांश निर्यात करें।
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-ghg-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-ghg-flow-v5-light.svg" width="100%" alt="dsh-ghg संरचना (मासिक क्लोज़ लेजर बोर्ड): 2026 की बारह-पंक्ति लेजर जिसमें हर महीने का kWh और tCO2e (कुल 804.123) kWh × 0.5703 ÷ 1000 से; दाईं ओर फैक्टर कार्ड (R0 match_factor / R1 factor_import), verify_row स्टेट गेट (calculated → verified केवल शून्य अंतर पर; अन्यथा E_GHG_RECALC_MISMATCH और line_id), और 2026-12 के तीन निर्यात (3-शीट कार्यपत्रक, 4-शीट आंशिक ESRS E1 पैक, Scope 2 CSV); नीचे दो सीमा रेल: स्थानीय लेखन सीमा और केवल-पढ़ने वाले coverage / Scope 3 मीटर">
+</picture>
 
 ## तीन चरणों में शुरुआत
 
@@ -309,7 +314,7 @@ pnpm run gate:sku02                                      # स्वीकृत
 | `docs/assets/` | README चित्र |
 | `evidence/` | स्वीकृति रन स्नैपशॉट (`result.json`) |
 
-README के चित्र [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से क्रमादेशित रूप से बनते हैं (Python; संसाधन वेक्टर SVG हैं, इसलिए Pillow की ज़रूरत नहीं)। `python scripts/gen-readme-assets.py` दोबारा चलाने पर `docs/assets/dsh-ghg-flow-{light,dark}.svg` फिर से लिखे जाते हैं; हर लेबल कमांड/लेखांकन टोकन है, इसलिए पाँचों भाषाएँ एक ही जोड़ी साझा करती हैं। पुराना एकल-संस्करण `docs/assets/dsh-ghg-flow.svg` बाहरी लिंक को 404 से बचाने के लिए रखा गया है।
+शुरुआती हीरो और संरचना आरेख [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से बनते हैं (Python/Pillow + हाथ से लिखा SVG), जो `docs/assets/dsh-ghg-hero-{zh,en}-{light,dark}.webp` और `docs/assets/dsh-ghg-flow-v5-{light,dark}.svg` लिखता है; जनरेटर दोबारा चलाया जा सकता है। आंकड़े गोल्डन fixture से हैं: 12 महीने, 1,410,000 kWh, 0.5703 kgCO2e/kWh, 804.123 tCO2e. पुरानी `docs/assets/dsh-ghg-flow-{light,dark}.svg` जोड़ी और एकल-संस्करण `dsh-ghg-flow.svg` बाहरी लिंक को 404 से बचाने के लिए रखे गए हैं।
 
 Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `ghg`, `esg`, `electricity`, `perrylink`, `esrs`
 
