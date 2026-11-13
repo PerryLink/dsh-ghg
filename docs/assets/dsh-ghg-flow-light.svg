@@ -11,25 +11,25 @@
 <path d="M252 208h26" stroke="#57606a" stroke-width="3"/>
 <path d="M276 201l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="286" y="156" width="188" height="104" rx="14" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
-<text x="380" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg.ingest</text>
+<text x="380" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg_ingest</text>
 <text x="380" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">kWh · evidence_sha256</text>
 <text x="380" y="238" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">period = YYYY-MM</text>
 <path d="M478 208h26" stroke="#57606a" stroke-width="3"/>
 <path d="M502 201l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="512" y="156" width="188" height="104" rx="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
-<text x="606" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg.calculate</text>
+<text x="606" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg_calculate</text>
 <text x="606" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">kWh × 0.5703 / 1000</text>
 <text x="606" y="238" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">tCO2e per line</text>
 <path d="M704 208h26" stroke="#57606a" stroke-width="3"/>
 <path d="M728 201l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="738" y="156" width="188" height="104" rx="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
-<text x="832" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg.verify_row</text>
+<text x="832" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg_verify_row</text>
 <text x="832" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">recalc_diff → 0</text>
 <text x="832" y="238" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">state = verified</text>
 <path d="M930 208h26" stroke="#57606a" stroke-width="3"/>
 <path d="M954 201l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="964" y="156" width="188" height="104" rx="14" fill="#f6f8fa" stroke="#16a34a" stroke-width="2"/>
-<text x="1058" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg.export_*</text>
+<text x="1058" y="192" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700">ghg_export_*</text>
 <text x="1058" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">3-sheet workpaper</text>
 <text x="1058" y="238" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">4-sheet ESRS pack</text>
 <path d="M380 260v40" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
@@ -38,5 +38,5 @@
 <rect x="60" y="300" width="1092" height="72" rx="12" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
 <text x="84" y="330" fill="#1f2328" font-family="ui-monospace,monospace" font-size="15" font-weight="700">$DSH_HOME/storages/dsh-ghg</text>
 <text x="84" y="355" fill="#57606a" font-family="ui-monospace,monospace" font-size="12">storage domain ghg · facilities · activities · lines · factors · scopes · exports/</text>
-<text x="60" y="418" fill="#57606a" font-family="ui-monospace,monospace" font-size="13">ghg.ingest_pdf → text PDF only · no OCR · no network · no model call</text>
+<text x="60" y="418" fill="#57606a" font-family="ui-monospace,monospace" font-size="13">ghg_ingest_pdf → text PDF only · no OCR · no network · no model call</text>
 </svg>

@@ -16,12 +16,12 @@ test('re-ingesting the same file is idempotent and reports skipped rows', async 
     const tools = createTools({ facilities: new T(), activities, lines: new T(), baseDir: path.join(dir, 'store') })
     const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
     const exec = { callId: 'idem' }
-    await by['ghg.facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic' }] }, exec)
-    const first = await by['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV }, exec)
+    await by['ghg_facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic' }] }, exec)
+    const first = await by['ghg_ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV }, exec)
     assert.equal(first.rows, 2)
     assert.equal(first.skipped, 0)
     assert.equal(activities.size, 2)
-    const second = await by['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV }, exec)
+    const second = await by['ghg_ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV }, exec)
     assert.equal(second.rows, 0)
     assert.equal(second.skipped, 2)
     assert.equal(activities.size, 2)
@@ -35,9 +35,9 @@ test('the same numbers from a different evidence file do not overwrite each othe
     const tools = createTools({ facilities: new T(), activities, lines: new T(), baseDir: path.join(dir, 'store') })
     const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
     const exec = { callId: 'idem' }
-    await by['ghg.facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic' }] }, exec)
-    await by['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV }, exec)
-    await by['ghg.ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV + '\n' }, exec)
+    await by['ghg_facility_import'].execute({ facilities: [{ facility_id: 'F1', name: 'Synthetic' }] }, exec)
+    await by['ghg_ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV }, exec)
+    await by['ghg_ingest'].execute({ facility_id: 'F1', period: '2026-01', csv_text: CSV + '\n' }, exec)
     assert.equal(activities.size, 4)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })

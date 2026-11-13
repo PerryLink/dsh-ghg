@@ -34,7 +34,7 @@ dsh plugin --profile <name> add dsh-ghg
 
 ## What it is
 
-`dsh-ghg` runs a fully local Scope 2 accounting pipeline inside DeepSeek Harness: import a facility boundary and electricity activity (CSV, or a text-based PDF), multiply kWh by a location grid factor into tCO2e, recalculate every line, then export a 3-sheet workpaper and a 4-sheet partial ESRS E1 workbook. The tool names are the stable API (`ghg.*`); call them as import → calculate → verify → export. Input and output stay on your machine — no network request, no model call.
+`dsh-ghg` runs a fully local Scope 2 accounting pipeline inside DeepSeek Harness: import a facility boundary and electricity activity (CSV, or a text-based PDF), multiply kWh by a location grid factor into tCO2e, recalculate every line, then export a 3-sheet workpaper and a 4-sheet partial ESRS E1 workbook. The tool names are the stable API (`ghg_*`); call them as import → calculate → verify → export. Input and output stay on your machine — no network request, no model call.
 
 **Good fit**: a monthly electricity ledger (CSV) for one or a few facilities, when you want a first-pass Scope 2 number and a 12-month completeness check before the annual inventory. **Not a fit**: scans or handwritten bills (text-based PDFs only), direct grid/ERP integration (the package connects to no external system), or formal assurance and final disclosure.
 
@@ -56,7 +56,7 @@ Inside DSH you can simply say:
 1. **Install** (pick one of four channels; npm is recommended):
 
    ```sh
-   # npm (recommended, 0.1.1 published)
+   # npm (recommended, 0.2.0 published)
    dsh plugin --profile <name> add dsh-ghg
    # git channel (tracks main; lib/ is a build artifact and is not committed, so run pnpm install && pnpm build in the checkout first)
    dsh plugin --profile <name> add github:PerryLink/dsh-ghg
@@ -106,30 +106,30 @@ quickstart ok
 
 - **Electricity ingest (CSV)** — the header must contain `date` (or `month`) and `kwh`, and every row must have the exact header width; `MWh`, empty values, and non-finite numbers fail loudly instead of being silently converted; the cap is 50,000 rows per batch. Re-importing the same file skips rows by deterministic `activity_id`, so nothing is duplicated; the source SHA-256 is stored as `evidence_sha256`.
 - **Text-based PDF ingest** — `pdfjs-dist` extracts text and the tool pulls date/kWh rows from it; scanned or image-only PDFs are refused loudly.
-- **Location factor and custom factors** — the default is `electricity-location-cn-2022-v1` (0.5703 kgCO2e/kWh, public reference: China national grid average 2022, not assurance-grade); `ghg.factor_import` imports a versioned public/synthetic factor and calculation uses it.
-- **Row-by-row recalculation** — `ghg.verify_row` recalculates with each line's stored factor and returns `mismatches` and `recalc_diff`; zero-diff lines are marked `verified`.
+- **Location factor and custom factors** — the default is `electricity-location-cn-2022-v1` (0.5703 kgCO2e/kWh, public reference: China national grid average 2022, not assurance-grade); `ghg_factor_import` imports a versioned public/synthetic factor and calculation uses it.
+- **Row-by-row recalculation** — `ghg_verify_row` recalculates with each line's stored factor and returns `mismatches` and `recalc_diff`; zero-diff lines are marked `verified`.
 - **Workpaper export** — a 3-sheet xlsx (Facilities / Activities / Emissions) with source hashes and line state, written through `safeExportPath`.
 - **Partial ESRS E1 pack** — a 4-sheet xlsx (summary / methodology / data quality / lines) covering Scope 2 only; Scope 1/3 are written as `not in boundary` when not imported; not assurance-grade.
-- **Coverage and Scope 3 summary** — `ghg.period_coverage` reports the 12-month coverage/missing months plus annual kWh and tCO2e; `ghg.scope3_summary` aggregates the 15 GHG Protocol categories and reports out-of-range categories and negative values as `issues` instead of dropping them.
+- **Coverage and Scope 3 summary** — `ghg_period_coverage` reports the 12-month coverage/missing months plus annual kWh and tCO2e; `ghg_scope3_summary` aggregates the 15 GHG Protocol categories and reports out-of-range categories and negative values as `issues` instead of dropping them.
 - **Local end to end** — no network, no model call, no upload; it reads only the files you name and writes only its own storage domain and `exports/`.
 
 ### Tool surface
 
 | Tool | Purpose | Risk |
 |---|---|---|
-| `ghg.facility_import` | Import facility boundary metadata (id/name/site/region) | R1 local write |
-| `ghg.ingest` | Ingest an electricity CSV (`date`/`month` + `kwh`); reject MWh and unit mismatches | R1 local write |
-| `ghg.ingest_pdf` | Extract date/kWh rows from a text-based PDF; no OCR, no scanned PDFs | R1 local write |
-| `ghg.match_factor` | Return the active location factor with its public source and unit | R0 |
-| `ghg.factor_import` | Import a versioned public/synthetic factor | R1 local write |
-| `ghg.scope_import` | Import public/synthetic Scope 1/3 values for the partial ESRS pack | R1 local write |
-| `ghg.calculate` | Multiply kWh by the factor (default or imported) into tCO2e lines | R1 local write |
-| `ghg.verify_row` | Recalculate every line and return mismatches/diffs | R1 local write |
-| `ghg.export_workpaper` | Export a 3-sheet xlsx: Facilities / Activities / Emissions | R1 local write |
-| `ghg.export_esrs` | Export a partial ESRS E1 CSV summary; not assurance-grade | R1 local write |
-| `ghg.export_esrs_pack` | Export a 4-sheet partial ESRS E1 workbook | R1 local write |
-| `ghg.period_coverage` | Report covered/missing months, rows, kWh, and tCO2e for a reporting year | R0 |
-| `ghg.scope3_summary` | Summarize Scope 3 across the 15 categories with category/value issues | R0 |
+| `ghg_facility_import` | Import facility boundary metadata (id/name/site/region) | R1 local write |
+| `ghg_ingest` | Ingest an electricity CSV (`date`/`month` + `kwh`); reject MWh and unit mismatches | R1 local write |
+| `ghg_ingest_pdf` | Extract date/kWh rows from a text-based PDF; no OCR, no scanned PDFs | R1 local write |
+| `ghg_match_factor` | Return the active location factor with its public source and unit | R0 |
+| `ghg_factor_import` | Import a versioned public/synthetic factor | R1 local write |
+| `ghg_scope_import` | Import public/synthetic Scope 1/3 values for the partial ESRS pack | R1 local write |
+| `ghg_calculate` | Multiply kWh by the factor (default or imported) into tCO2e lines | R1 local write |
+| `ghg_verify_row` | Recalculate every line and return mismatches/diffs | R1 local write |
+| `ghg_export_workpaper` | Export a 3-sheet xlsx: Facilities / Activities / Emissions | R1 local write |
+| `ghg_export_esrs` | Export a partial ESRS E1 CSV summary; not assurance-grade | R1 local write |
+| `ghg_export_esrs_pack` | Export a 4-sheet partial ESRS E1 workbook | R1 local write |
+| `ghg_period_coverage` | Report covered/missing months, rows, kWh, and tCO2e for a reporting year | R0 |
+| `ghg_scope3_summary` | Summarize Scope 3 across the 15 categories with category/value issues | R0 |
 
 R0 = read-only; R1 = writes only to the local storage and `exports/`, never to the network.
 
@@ -157,7 +157,7 @@ The plugin has no Schemastery `Config` fields; `cordis.patch.yml` only inserts o
 | `DSH_HOME` | unset | Host home; decides the default data root |
 | export directory | `<data root>/exports` | Where workpapers, ESRS packs, and ESRS CSV land; filenames and paths are constrained by `safeExportPath` |
 | `period` | required, `YYYY-MM` | Reporting period for ingest/calculate/export |
-| `factor_id` | `electricity-location-cn-2022-v1` | Calculation factor; the built-in public grid factor is used unless a factor is imported with `ghg.factor_import` |
+| `factor_id` | `electricity-location-cn-2022-v1` | Calculation factor; the built-in public grid factor is used unless a factor is imported with `ghg_factor_import` |
 | CSV row cap | 50,000 | Above it `E_GHG_BILL_INCOMPLETE` fails before the file is materialized |
 | facility id | letters, digits, `.`, `_`, `-` | The export filename is built from it; `/`, spaces, and `..` are rejected with `E_GHG_PATH_INVALID` |
 
@@ -212,14 +212,14 @@ It fails loudly instead of converting or padding values: `MWh` and empty values 
 <details>
 <summary>Can it handle scanned or image-only PDFs?</summary>
 
-No. `ghg.ingest_pdf` extracts the text layer of a text-based PDF only and does not run OCR; convert a scan to CSV (`date,kwh`) and use `ghg.ingest` instead — the package does not pretend to read it.
+No. `ghg_ingest_pdf` extracts the text layer of a text-based PDF only and does not run OCR; convert a scan to CSV (`date,kwh`) and use `ghg_ingest` instead — the package does not pretend to read it.
 
 </details>
 
 <details>
 <summary>What if the numbers disagree or the recalculation shows a diff?</summary>
 
-Start with `ghg.verify_row`'s `mismatches` and `recalc_diff`: the formula is fixed at `kWh × factor_value_kg_per_kwh ÷ 1000`, so a diff usually means the factor changed after import and the lines were not recalculated. Re-run `ghg.calculate` to produce fresh lines, then `ghg.verify_row` again; a remaining mismatch raises `E_GHG_RECALC_MISMATCH` with that next action. The whole chain can be checked against the golden file with `node samples/quickstart/run.mjs --check`.
+Start with `ghg_verify_row`'s `mismatches` and `recalc_diff`: the formula is fixed at `kWh × factor_value_kg_per_kwh ÷ 1000`, so a diff usually means the factor changed after import and the lines were not recalculated. Re-run `ghg_calculate` to produce fresh lines, then `ghg_verify_row` again; a remaining mismatch raises `E_GHG_RECALC_MISMATCH` with that next action. The whole chain can be checked against the golden file with `node samples/quickstart/run.mjs --check`.
 
 </details>
 
@@ -249,8 +249,8 @@ No. It is local arithmetic and file I/O only — no model call, no network reque
 ## Known limitations
 
 - **alpha / partial / not counted.** No customer evidence, customer data, or production-readiness claim; `EVIDENCE.md` states that customer evidence is permanently out of scope, and `PARK.md` is historical only.
-- **Scope 2 only.** The ESRS E1 pack is partial: Scope 1/3 appear only when imported with `ghg.scope_import` as public/synthetic values, otherwise they are written as `not in boundary`; the output is not assurance-grade.
-- **The default factor is a public reference.** `electricity-location-cn-2022-v1` = 0.5703 kgCO2e/kWh (China national grid average 2022, not assurance-grade); it does not connect to a grid or ERP, so custom factors must be imported with `ghg.factor_import`.
+- **Scope 2 only.** The ESRS E1 pack is partial: Scope 1/3 appear only when imported with `ghg_scope_import` as public/synthetic values, otherwise they are written as `not in boundary`; the output is not assurance-grade.
+- **The default factor is a public reference.** `electricity-location-cn-2022-v1` = 0.5703 kgCO2e/kWh (China national grid average 2022, not assurance-grade); it does not connect to a grid or ERP, so custom factors must be imported with `ghg_factor_import`.
 - **No OCR.** Text-based PDFs only; scanned and image-only PDFs are unsupported.
 - **Strict CSV.** The header needs `date` (or `month`) and `kwh`, rows must match the header width, dates must be `YYYY-MM` or `YYYY-MM-DD` and inside the chosen `period`, kWh must be non-negative, and a batch is capped at 50,000 rows; MWh is not auto-converted and bad rows are not skipped.
 - **It needs host services.** The plugin injects `tools` and `storageDomain`; a bare profile without storage will not apply it.
@@ -262,12 +262,12 @@ No. It is local arithmetic and file I/O only — no model call, no network reque
 
 Checked against the source (`src/plugin/index.ts`, `src/plugin/tools.ts`, `src/plugin/storage.ts`); the plugin has no collision surface with commands, tools, slots, HTTP routes, or storage domains:
 
-- **Namespaced tool names.** All 13 tools start with `ghg.` and take no bare name owned by a built-in tool or another plugin.
+- **Namespaced tool names.** All 13 tools start with `ghg_` and take no bare name owned by a built-in tool or another plugin.
 - **Consumes, does not provide.** `inject` is only `['tools', 'storageDomain']`; it registers no command, client slot, `webServer` prefix, or service key.
 - **Its own storage domain.** It uses only the five tables of its own `ghg` v1 domain and reads/writes no other domain.
 - **No global mutation.** It patches no prototype, rewrites no `process.env`, and replaces no global fetch.
 - **Exports cannot escape.** Every file write goes through `safeExportPath` inside its own `exports/`.
-- **Read-only tools re-enter safely.** `ghg.match_factor`, `ghg.period_coverage`, and `ghg.scope3_summary` write no state and can be called repeatedly.
+- **Read-only tools re-enter safely.** `ghg_match_factor`, `ghg_period_coverage`, and `ghg_scope3_summary` write no state and can be called repeatedly.
 
 ## Compatibility
 
@@ -294,12 +294,12 @@ Checked against the source (`src/plugin/index.ts`, `src/plugin/tools.ts`, `src/p
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # 27 tests
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # 28 tests
 node samples/quickstart/run.mjs --check                  # golden re-run
 pnpm run gate:sku02                                      # acceptance gate (writes evidence/)
 ```
 
-Current version `0.1.1`.
+Current version `0.2.0`.
 
 Directory layout:
 

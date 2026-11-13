@@ -34,7 +34,7 @@ dsh plugin --profile <name> add dsh-ghg
 
 ## O que é
 
-O `dsh-ghg` executa dentro do DeepSeek Harness um pipeline de contabilidade de escopo 2 totalmente local: importa o limite de uma instalação e sua atividade elétrica (CSV, ou um PDF de texto), multiplica os kWh por um fator de rede de localização para obter tCO2e, recalcula cada linha e exporta um papel de trabalho de 3 planilhas e uma pasta de trabalho parcial ESRS E1 de 4 planilhas. Os nomes das ferramentas são a API estável (`ghg.*`); a chamada segue importar → calcular → verificar → exportar. A entrada e a saída ficam na sua máquina: sem requisições de rede e sem chamadas ao modelo.
+O `dsh-ghg` executa dentro do DeepSeek Harness um pipeline de contabilidade de escopo 2 totalmente local: importa o limite de uma instalação e sua atividade elétrica (CSV, ou um PDF de texto), multiplica os kWh por um fator de rede de localização para obter tCO2e, recalcula cada linha e exporta um papel de trabalho de 3 planilhas e uma pasta de trabalho parcial ESRS E1 de 4 planilhas. Os nomes das ferramentas são a API estável (`ghg_*`); a chamada segue importar → calcular → verificar → exportar. A entrada e a saída ficam na sua máquina: sem requisições de rede e sem chamadas ao modelo.
 
 **Combina** com um livro mensal de eletricidade (CSV) de uma ou algumas instalações, quando você quer um primeiro número de escopo 2 e verificar os 12 meses antes do inventário anual. **Não combina** com digitalizações ou contas manuscritas (apenas PDF de texto), integração direta com a rede ou um ERP (o pacote não se conecta a nenhum sistema externo), nem com asseguração formal ou divulgação final.
 
@@ -56,7 +56,7 @@ Dentro do DSH basta dizer:
 1. **Instale** (escolha um dos quatro canais; npm é o recomendado):
 
    ```sh
-   # npm (recomendado, 0.1.1 publicado)
+   # npm (recomendado, 0.2.0 publicado)
    dsh plugin --profile <name> add dsh-ghg
    # canal git (acompanha a main; lib/ é artefato de build e não está no repositório, então rode pnpm install && pnpm build no checkout)
    dsh plugin --profile <name> add github:PerryLink/dsh-ghg
@@ -106,30 +106,30 @@ Dentro do DSH basta dizer:
 
 - **Ingestão de atividade elétrica (CSV)** — o cabeçalho deve conter `date` (ou `month`) e `kwh`, e toda linha deve ter exatamente a largura do cabeçalho; `MWh`, valores vazios e números não finitos falham de forma ruidosa em vez de serem convertidos em silêncio; o limite é de 50.000 linhas por lote. Reimportar o mesmo arquivo pula linhas por `activity_id` determinístico, sem duplicar; o SHA-256 de origem fica em `evidence_sha256`.
 - **Ingestão de PDF de texto** — o `pdfjs-dist` extrai o texto e a ferramenta obtém as linhas data/kWh; PDFs escaneados ou só imagem são recusados de forma explícita.
-- **Fator de localização e fatores próprios** — o padrão é `electricity-location-cn-2022-v1` (0,5703 kgCO2e/kWh, referência pública: média da rede nacional da China 2022, não é nível de asseguração); `ghg.factor_import` importa um fator público/sintético versionado e o cálculo passa a usá-lo.
-- **Recálculo linha a linha** — `ghg.verify_row` recalcula com o fator armazenado em cada linha e devolve `mismatches` e `recalc_diff`; linhas sem diferença são marcadas como `verified`.
+- **Fator de localização e fatores próprios** — o padrão é `electricity-location-cn-2022-v1` (0,5703 kgCO2e/kWh, referência pública: média da rede nacional da China 2022, não é nível de asseguração); `ghg_factor_import` importa um fator público/sintético versionado e o cálculo passa a usá-lo.
+- **Recálculo linha a linha** — `ghg_verify_row` recalcula com o fator armazenado em cada linha e devolve `mismatches` e `recalc_diff`; linhas sem diferença são marcadas como `verified`.
 - **Exportação do papel de trabalho** — um xlsx de 3 planilhas (Facilities / Activities / Emissions) com hashes de origem e estado da linha, gravado por `safeExportPath`.
 - **Pacote parcial ESRS E1** — um xlsx de 4 planilhas (resumo / metodologia / qualidade do dado / linhas) cobrindo apenas o escopo 2; escopos 1 e 3 aparecem como `not in boundary` quando não importados; não é nível de asseguração.
-- **Cobertura e resumo de escopo 3** — `ghg.period_coverage` informa a cobertura de 12 meses e os meses faltantes, com kWh e tCO2e anuais; `ghg.scope3_summary` agrega as 15 categorias do GHG Protocol e reporta categorias fora do intervalo e valores negativos como `issues`, sem descartá-los em silêncio.
+- **Cobertura e resumo de escopo 3** — `ghg_period_coverage` informa a cobertura de 12 meses e os meses faltantes, com kWh e tCO2e anuais; `ghg_scope3_summary` agrega as 15 categorias do GHG Protocol e reporta categorias fora do intervalo e valores negativos como `issues`, sem descartá-los em silêncio.
 - **Local de ponta a ponta** — sem rede, sem chamada ao modelo e sem upload; lê apenas os arquivos indicados e grava apenas no próprio domínio de armazenamento e em `exports/`.
 
 ### Superfície de ferramentas
 
 | Ferramenta | Propósito | Risco |
 |---|---|---|
-| `ghg.facility_import` | Importa metadados do limite da instalação (id/name/site/region) | R1 gravação local |
-| `ghg.ingest` | Ingere um CSV elétrico (`date`/`month` + `kwh`); recusa MWh e divergências de unidade | R1 gravação local |
-| `ghg.ingest_pdf` | Extrai linhas data/kWh de um PDF de texto; sem OCR e sem PDF escaneado | R1 gravação local |
-| `ghg.match_factor` | Devolve o fator de localização ativo com fonte pública e unidade | R0 |
-| `ghg.factor_import` | Importa um fator público/sintético versionado | R1 gravação local |
-| `ghg.scope_import` | Importa valores públicos/sintéticos de escopo 1/3 para o pacote ESRS parcial | R1 gravação local |
-| `ghg.calculate` | Multiplica kWh pelo fator (padrão ou importado) em linhas de tCO2e | R1 gravação local |
-| `ghg.verify_row` | Recalcula todas as linhas e devolve divergências/diferenças | R1 gravação local |
-| `ghg.export_workpaper` | Exporta um xlsx de 3 planilhas: Facilities / Activities / Emissions | R1 gravação local |
-| `ghg.export_esrs` | Exporta um resumo CSV parcial ESRS E1; não é nível de asseguração | R1 gravação local |
-| `ghg.export_esrs_pack` | Exporta uma pasta de trabalho parcial ESRS E1 de 4 planilhas | R1 gravação local |
-| `ghg.period_coverage` | Informa meses cobertos/faltantes, linhas, kWh e tCO2e de um ano de relato | R0 |
-| `ghg.scope3_summary` | Resume o escopo 3 nas 15 categorias com problemas de categoria/valor | R0 |
+| `ghg_facility_import` | Importa metadados do limite da instalação (id/name/site/region) | R1 gravação local |
+| `ghg_ingest` | Ingere um CSV elétrico (`date`/`month` + `kwh`); recusa MWh e divergências de unidade | R1 gravação local |
+| `ghg_ingest_pdf` | Extrai linhas data/kWh de um PDF de texto; sem OCR e sem PDF escaneado | R1 gravação local |
+| `ghg_match_factor` | Devolve o fator de localização ativo com fonte pública e unidade | R0 |
+| `ghg_factor_import` | Importa um fator público/sintético versionado | R1 gravação local |
+| `ghg_scope_import` | Importa valores públicos/sintéticos de escopo 1/3 para o pacote ESRS parcial | R1 gravação local |
+| `ghg_calculate` | Multiplica kWh pelo fator (padrão ou importado) em linhas de tCO2e | R1 gravação local |
+| `ghg_verify_row` | Recalcula todas as linhas e devolve divergências/diferenças | R1 gravação local |
+| `ghg_export_workpaper` | Exporta um xlsx de 3 planilhas: Facilities / Activities / Emissions | R1 gravação local |
+| `ghg_export_esrs` | Exporta um resumo CSV parcial ESRS E1; não é nível de asseguração | R1 gravação local |
+| `ghg_export_esrs_pack` | Exporta uma pasta de trabalho parcial ESRS E1 de 4 planilhas | R1 gravação local |
+| `ghg_period_coverage` | Informa meses cobertos/faltantes, linhas, kWh e tCO2e de um ano de relato | R0 |
+| `ghg_scope3_summary` | Resume o escopo 3 nas 15 categorias com problemas de categoria/valor | R0 |
 
 R0 = somente leitura; R1 = grava apenas no armazenamento local e em `exports/`, nunca na rede.
 
@@ -157,7 +157,7 @@ O plugin não tem campos `Config` do Schemastery; o `cordis.patch.yml` só inser
 | `DSH_HOME` | não definido | Home do host; decide a raiz de dados padrão |
 | diretório de exportação | `<raiz de dados>/exports` | Onde caem os papéis de trabalho, os pacotes ESRS e o CSV ESRS; `safeExportPath` restringe nomes e caminhos |
 | `period` | obrigatório, `YYYY-MM` | Período de relato para ingestão/cálculo/exportação |
-| `factor_id` | `electricity-location-cn-2022-v1` | Fator de cálculo; usa o fator público embutido a menos que um seja importado com `ghg.factor_import` |
+| `factor_id` | `electricity-location-cn-2022-v1` | Fator de cálculo; usa o fator público embutido a menos que um seja importado com `ghg_factor_import` |
 | limite de linhas do CSV | 50.000 | Acima disso, `E_GHG_BILL_INCOMPLETE` falha antes de materializar o arquivo |
 | id da instalação | letras, dígitos, `.`, `_`, `-` | O nome do arquivo exportado é montado com ele; `/`, espaços e `..` são recusados com `E_GHG_PATH_INVALID` |
 
@@ -212,14 +212,14 @@ Falha de forma ruidosa em vez de converter ou preencher: `MWh` e valores vazios 
 <details>
 <summary>Dá para processar PDF escaneado ou só imagem?</summary>
 
-Não. O `ghg.ingest_pdf` extrai apenas a camada de texto de um PDF de texto e não roda OCR; converta o escaneado em CSV (`date,kwh`) e use `ghg.ingest` —o pacote não finge lê-lo.
+Não. O `ghg_ingest_pdf` extrai apenas a camada de texto de um PDF de texto e não roda OCR; converta o escaneado em CSV (`date,kwh`) e use `ghg_ingest` —o pacote não finge lê-lo.
 
 </details>
 
 <details>
 <summary>E se os números não fecharem ou o recálculo mostrar diferença?</summary>
 
-Comece por `mismatches` e `recalc_diff` do `ghg.verify_row`: a fórmula é fixa, `kWh × factor_value_kg_per_kwh ÷ 1000`, então uma diferença normalmente significa que o fator mudou após a ingestão e as linhas não foram recalculadas. Rode `ghg.calculate` de novo para gerar linhas novas e depois `ghg.verify_row`; se persistir, surge `E_GHG_RECALC_MISMATCH` com essa ação seguinte. Toda a cadeia pode ser conferida contra o arquivo dourado com `node samples/quickstart/run.mjs --check`.
+Comece por `mismatches` e `recalc_diff` do `ghg_verify_row`: a fórmula é fixa, `kWh × factor_value_kg_per_kwh ÷ 1000`, então uma diferença normalmente significa que o fator mudou após a ingestão e as linhas não foram recalculadas. Rode `ghg_calculate` de novo para gerar linhas novas e depois `ghg_verify_row`; se persistir, surge `E_GHG_RECALC_MISMATCH` com essa ação seguinte. Toda a cadeia pode ser conferida contra o arquivo dourado com `node samples/quickstart/run.mjs --check`.
 
 </details>
 
@@ -249,8 +249,8 @@ Não. Só faz aritmética local e E/S de arquivos: sem chamada ao modelo, sem re
 ## Limitações conhecidas
 
 - **alpha / parcial / não contabilizado.** Sem evidência de clientes, dados de clientes ou promessa de produção; `EVIDENCE.md` declara que a evidência de clientes está permanentemente fora do escopo e `PARK.md` é apenas histórico.
-- **Somente escopo 2.** O pacote ESRS E1 é parcial: escopos 1 e 3 aparecem apenas quando importados com `ghg.scope_import` como valores públicos/sintéticos; caso contrário são gravados como `not in boundary`. A saída não é nível de asseguração.
-- **O fator padrão é uma referência pública.** `electricity-location-cn-2022-v1` = 0,5703 kgCO2e/kWh (média da rede nacional da China 2022, não é nível de asseguração); não conecta a uma rede nem a um ERP, então fatores próprios precisam ser importados com `ghg.factor_import`.
+- **Somente escopo 2.** O pacote ESRS E1 é parcial: escopos 1 e 3 aparecem apenas quando importados com `ghg_scope_import` como valores públicos/sintéticos; caso contrário são gravados como `not in boundary`. A saída não é nível de asseguração.
+- **O fator padrão é uma referência pública.** `electricity-location-cn-2022-v1` = 0,5703 kgCO2e/kWh (média da rede nacional da China 2022, não é nível de asseguração); não conecta a uma rede nem a um ERP, então fatores próprios precisam ser importados com `ghg_factor_import`.
 - **Sem OCR.** Apenas PDF de texto; escaneados e só imagem não são suportados.
 - **CSV estrito.** O cabeçalho precisa de `date` (ou `month`) e `kwh`, as linhas devem coincidir com a largura do cabeçalho, as datas devem ser `YYYY-MM` ou `YYYY-MM-DD` e estar dentro do `period` escolhido, os kWh devem ser não negativos e o lote é limitado a 50.000 linhas; MWh não é convertido automaticamente e linhas ruins não são puladas.
 - **Precisa de serviços do host.** O plugin injeta `tools` e `storageDomain`; um perfil básico sem armazenamento não o aplicará.
@@ -262,12 +262,12 @@ Não. Só faz aritmética local e E/S de arquivos: sem chamada ao modelo, sem re
 
 Conferido no código (`src/plugin/index.ts`, `src/plugin/tools.ts`, `src/plugin/storage.ts`); o plugin não tem superfície de colisão com comandos, ferramentas, slots, rotas HTTP ou domínios de armazenamento:
 
-- **Nomes de ferramenta com namespace.** As 13 ferramentas começam com `ghg.` e não ocupam nenhum nome nu de ferramenta embutida ou de outro plugin.
+- **Nomes de ferramenta com namespace.** As 13 ferramentas começam com `ghg_` e não ocupam nenhum nome nu de ferramenta embutida ou de outro plugin.
 - **Consome, não fornece.** O `inject` é apenas `['tools', 'storageDomain']`; não registra comando, slot de cliente, prefixo `webServer` ou chave de serviço.
 - **Domínio de armazenamento próprio.** Usa só as cinco tabelas do próprio domínio `ghg` v1 e não lê nem grava outros domínios.
 - **Sem mutações globais.** Não altera protótipos, não reescreve `process.env` e não substitui o fetch global.
 - **Exportações não escapam.** Toda gravação passa pelo `safeExportPath` dentro do próprio `exports/`.
-- **Ferramentas somente leitura são reentrantes.** `ghg.match_factor`, `ghg.period_coverage` e `ghg.scope3_summary` não gravam estado e podem ser chamadas repetidamente.
+- **Ferramentas somente leitura são reentrantes.** `ghg_match_factor`, `ghg_period_coverage` e `ghg_scope3_summary` não gravam estado e podem ser chamadas repetidamente.
 
 ## Compatibilidade
 
@@ -294,12 +294,12 @@ Conferido no código (`src/plugin/index.ts`, `src/plugin/tools.ts`, `src/plugin/
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # 27 testes
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # 28 testes
 node samples/quickstart/run.mjs --check                  # repetição do arquivo dourado
 pnpm run gate:sku02                                      # portão de aceitação (grava evidence/)
 ```
 
-Versão atual `0.1.1`.
+Versão atual `0.2.0`.
 
 Estrutura de diretórios:
 

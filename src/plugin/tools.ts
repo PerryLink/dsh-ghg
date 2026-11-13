@@ -23,7 +23,7 @@ function requirePeriod(period: string) { if (!/^\d{4}-\d{2}$/.test(period)) thro
 
 export function createTools(deps: ToolDeps) {
   const facilityImport = defineTool({
-    name: 'ghg.facility_import',
+    name: 'ghg_facility_import',
     description: 'Import a small facility boundary (id/name/site/region) into the local GHG pool. Local R1 write; no external system.',
     parameters: { facilities: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { facility_id: { type: 'string', required: true }, name: { type: 'string', required: true }, site: { type: 'string' }, region: { type: 'string' } } } } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { imported: { type: 'number', required: true }, facility_ids: { type: 'array', items: { type: 'string' }, required: true } } }, render: (_a, v) => text(`imported ${v.imported} facilities`) },
@@ -38,7 +38,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const ingest = defineTool({
-    name: 'ghg.ingest',
+    name: 'ghg_ingest',
     description: 'Ingest an electricity CSV (date/month,kwh) for one facility/period; validates units and stores activity rows with an evidence hash. No PDF/OCR in S1.',
     parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, csv_text: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { activity_ids: { type: 'array', items: { type: 'string' }, required: true }, rows: { type: 'number', required: true }, skipped: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`ingested ${v.rows} electricity rows (skipped ${v.skipped})`) },
@@ -64,7 +64,7 @@ export function createTools(deps: ToolDeps) {
 
 
   const scopeImport = defineTool({
-    name: 'ghg.scope_import',
+    name: 'ghg_scope_import',
     description: 'Import public/synthetic Scope 1/3 figures for an ESRS pack. Local R1 write; not assurance-grade, not customer evidence.',
     parameters: { period: { type: 'string', required: true }, scope1_tco2e: { type: 'number', required: true }, scope3_tco2e: { type: 'number', required: true }, source: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { period: { type: 'string', required: true }, scope1_tco2e: { type: 'number', required: true }, scope3_tco2e: { type: 'number', required: true } } }, render: (_a, v) => text(`scope ${v.period}`) },
@@ -72,7 +72,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const factorImport = defineTool({
-    name: 'ghg.factor_import',
+    name: 'ghg_factor_import',
     description: 'Import a versioned public/synthetic electricity factor. Local R1 write; not assurance-grade.',
     parameters: { factor_id: { type: 'string', required: true }, value_kg_per_kwh: { type: 'number', required: true }, source: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { factor_id: { type: 'string', required: true }, value_kg_per_kwh: { type: 'number', required: true } } }, render: (_a, v) => text(`factor ${v.factor_id}`) },
@@ -81,7 +81,7 @@ export function createTools(deps: ToolDeps) {
 
 
   const ingestPdf = defineTool({
-    name: 'ghg.ingest_pdf',
+    name: 'ghg_ingest_pdf',
     description: 'Extract date/kWh rows from a text-based PDF using pdfjs-dist; public/synthetic input only. Local R1 write; no OCR.',
     parameters: { pdf_base64: { type: 'string', required: true }, facility_id: { type: 'string', required: true }, period: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { rows: { type: 'number', required: true }, skipped: { type: 'number', required: true }, evidence_sha256: { type: 'string', required: true } } }, render: (_a, v) => text(`PDF rows=${v.rows} skipped=${v.skipped}`) },
@@ -110,7 +110,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const matchFactor = defineTool({
-    name: 'ghg.match_factor',
+    name: 'ghg_match_factor',
     description: 'Return the active electricity location factor (public reference) and its source/unit.',
     parameters: {},
     output: { schema: { type: 'object', additionalProperties: false, properties: { factor_id: { type: 'string', required: true }, value: { type: 'number', required: true }, unit: { type: 'string', required: true }, source: { type: 'string', required: true } } }, render: (_a, v) => text(`factor ${v.factor_id} = ${v.value} ${v.unit}`) },
@@ -118,7 +118,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const calculate = defineTool({
-    name: 'ghg.calculate',
+    name: 'ghg_calculate',
     description: 'Calculate location-based electricity emissions for a facility/period: kWh × public grid factor / 1000 = tCO2e. Local R1 write; no Scope 3.',
     parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, factor_id: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { lines: { type: 'number', required: true }, total_tco2e: { type: 'number', required: true }, factor_id: { type: 'string', required: true } } }, render: (_a, v) => text(`calculated ${v.lines} lines = ${v.total_tco2e} tCO2e`) },
@@ -143,7 +143,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const verifyRow = defineTool({
-    name: 'ghg.verify_row',
+    name: 'ghg_verify_row',
     description: 'Recalculate every stored line and compare with the stored value; returns rows and mismatches. Read-only after marking verified when zero-diff.',
     parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, factor_id: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { checked: { type: 'number', required: true }, mismatches: { type: 'array', items: { type: 'string' }, required: true }, recalc_diff: { type: 'number', required: true } } }, render: (_a, v) => text(`verified ${v.checked} lines; mismatches=${v.mismatches.length}`) },
@@ -162,7 +162,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const exportWorkpaper = defineTool({
-    name: 'ghg.export_workpaper',
+    name: 'ghg_export_workpaper',
     description: 'Export a 3-sheet xlsx workpaper (Facilities, Activities, Emissions) with source hashes. Local R1 write; no external send.',
     parameters: { facility_id: { type: 'string', required: true }, period: { type: 'string', required: true }, factor_id: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { path: { type: 'string', required: true }, sha256: { type: 'string', required: true }, sheets: { type: 'number', required: true } } }, render: (_a, v) => text(`exported ${v.sheets} sheets`) },
@@ -186,7 +186,7 @@ export function createTools(deps: ToolDeps) {
 
 
   const exportEsrs = defineTool({
-    name: 'ghg.export_esrs',
+    name: 'ghg_export_esrs',
     description: 'Export a partial ESRS E1 CSV summary (Scope 2 only; Scope 1/3 not in boundary) for a period. Local R1 write; not assurance-grade.',
     parameters: { period: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { path: { type: 'string', required: true }, sha256: { type: 'string', required: true }, scope2_tco2e: { type: 'number', required: true }, rows: { type: 'number', required: true } } }, render: (_a, v) => text(`ESRS E1 Scope2=${v.scope2_tco2e}`) },
@@ -204,7 +204,7 @@ export function createTools(deps: ToolDeps) {
 
 
   const exportEsrsPack = defineTool({
-    name: 'ghg.export_esrs_pack',
+    name: 'ghg_export_esrs_pack',
     description: 'Export a partial ESRS E1 xlsx pack (summary, methodology, data quality, lines). Scope 2 only; Scope 1/3 are explicitly not in boundary. Local R1 write; not assurance-grade.',
     parameters: { period: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { path: { type: 'string', required: true }, sha256: { type: 'string', required: true }, sheets: { type: 'number', required: true }, scope2_tco2e: { type: 'number', required: true } } }, render: (_a, v) => text(`ESRS pack Scope2=${v.scope2_tco2e}`) },
@@ -256,7 +256,7 @@ export function createTools(deps: ToolDeps) {
 
 
   const coverage = defineTool({
-    name: 'ghg.period_coverage',
+    name: 'ghg_period_coverage',
     description: 'Report month coverage for one reporting year from stored electricity activity: covered/missing months, rows, kWh and calculated tCO2e. Read-only completeness check; local only, no external system.',
     parameters: { year: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { year: { type: 'string', required: true }, covered_months: { type: 'array', items: { type: 'string' }, required: true }, missing_months: { type: 'array', items: { type: 'string' }, required: true }, rows: { type: 'number', required: true }, kwh: { type: 'number', required: true }, tco2e: { type: 'number', required: true }, complete: { type: 'boolean', required: true } } }, render: (_a, v) => text(`coverage ${v.year}: ${v.covered_months.length}/12 months, missing ${v.missing_months.length}`) },
@@ -283,7 +283,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const scope3Summary = defineTool({
-    name: 'ghg.scope3_summary',
+    name: 'ghg_scope3_summary',
     description: 'Summarise Scope 3 rows by the 15 GHG Protocol categories: per-category totals, reported count and category/value issues. Read-only; no writes.',
     parameters: { rows: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { category: { type: 'number', required: true }, tco2e: { type: 'number', required: true }, source: { type: 'string' } } } } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { total_tco2e: { type: 'number', required: true }, reported_categories: { type: 'number', required: true }, categories: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { category: { type: 'number', required: true }, name: { type: 'string', required: true }, tco2e: { type: 'number', required: true } } } }, issues: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { code: { type: 'string', required: true }, detail: { type: 'string', required: true } } } } } }, render: (_a, v) => text(`scope3 ${v.total_tco2e} tCO2e across ${v.reported_categories} categories`) },

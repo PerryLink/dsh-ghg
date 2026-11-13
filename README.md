@@ -34,7 +34,7 @@ dsh plugin --profile <name> add dsh-ghg
 
 ## 它是什么
 
-`dsh-ghg` 在 DeepSeek Harness 里跑一条纯本地的范围二核算流水线：导入设施边界与电费活动（CSV，或文本型 PDF），用地点电网因子把 kWh 乘成 tCO2e，逐行复算，再导出 3 sheet 底稿和 4 sheet 的部分 ESRS E1 工作簿。工具名就是稳定 API（`ghg.*`），按「导入 → 计算 → 复算 → 导出」调用即可。输入与输出都在本机，没有联网请求，也没有模型调用。
+`dsh-ghg` 在 DeepSeek Harness 里跑一条纯本地的范围二核算流水线：导入设施边界与电费活动（CSV，或文本型 PDF），用地点电网因子把 kWh 乘成 tCO2e，逐行复算，再导出 3 sheet 底稿和 4 sheet 的部分 ESRS E1 工作簿。工具名就是稳定 API（`ghg_*`），按「导入 → 计算 → 复算 → 导出」调用即可。输入与输出都在本机，没有联网请求，也没有模型调用。
 
 **适合**：一家或几家工厂的月度电费台账（CSV），年度盘查前先算范围二、核对 12 个月有没有缺月。**不适合**：扫描件或手写电费单（只支持文本型 PDF）、直连电网或 ERP（本包不连外部系统）、正式鉴证或对外披露定稿。
 
@@ -56,7 +56,7 @@ dsh plugin --profile <name> add dsh-ghg
 1. **安装**（四选一；npm 是推荐通道）：
 
    ```sh
-   # npm（推荐，已发布 0.1.1）
+   # npm（推荐，已发布 0.2.0）
    dsh plugin --profile <name> add dsh-ghg
    # git 通道（跟随 main；lib/ 是构建产物、不入库，需在 checkout 内先 pnpm install && pnpm build）
    dsh plugin --profile <name> add github:PerryLink/dsh-ghg
@@ -106,30 +106,30 @@ dsh plugin --profile <name> add dsh-ghg
 
 - **电费活动入库（CSV）** —— 表头含 `date`（或 `month`）与 `kwh`，每行列宽必须与表头一致；`MWh`、空值、非有限数直接报错，不静默换算；单批上限 50,000 行。同一份文件重复导入按确定性 `activity_id` 跳过，不产生重复行；原文 SHA-256 存为 `evidence_sha256`。
 - **文本型 PDF 入库** —— `pdfjs-dist` 抽文本后按「日期 + kWh」提取行；扫描件、图片型 PDF 不处理，明确报错。
-- **地点因子与自定义因子** —— 默认 `electricity-location-cn-2022-v1`（0.5703 kgCO2e/kWh，公开参考：2022 年中国电网平均，非鉴证级）；`ghg.factor_import` 可导入带版本的公开/合成因子并按其计算。
-- **逐行复算** —— `ghg.verify_row` 用每行存储的因子重算，返回 `mismatches` 与 `recalc_diff`；零差异的行标记为 `verified`。
+- **地点因子与自定义因子** —— 默认 `electricity-location-cn-2022-v1`（0.5703 kgCO2e/kWh，公开参考：2022 年中国电网平均，非鉴证级）；`ghg_factor_import` 可导入带版本的公开/合成因子并按其计算。
+- **逐行复算** —— `ghg_verify_row` 用每行存储的因子重算，返回 `mismatches` 与 `recalc_diff`；零差异的行标记为 `verified`。
 - **底稿导出** —— 3 sheet xlsx（Facilities / Activities / Emissions），带来源哈希与行级状态，落盘前过 `safeExportPath`。
 - **部分 ESRS E1 包** —— 4 sheet xlsx（摘要 / 方法 / 数据质量 / 明细），只覆盖 Scope 2；Scope 1/3 未导入时在表里写明 `not in boundary`；非鉴证级。
-- **覆盖度与 Scope 3 汇总** —— `ghg.period_coverage` 报 12 个月覆盖/缺失与年度 kWh、tCO2e；`ghg.scope3_summary` 按 GHG Protocol 十五类汇总，对越界类别与负值给出 `issues`，不静默丢弃。
+- **覆盖度与 Scope 3 汇总** —— `ghg_period_coverage` 报 12 个月覆盖/缺失与年度 kWh、tCO2e；`ghg_scope3_summary` 按 GHG Protocol 十五类汇总，对越界类别与负值给出 `issues`，不静默丢弃。
 - **全程本地** —— 不联网、不调模型、不上传；只读用户指定的文件，只写自己的 storage 域与 `exports/`。
 
 ### 工具面
 
 | 工具 | 用途 | 风险 |
 |---|---|---|
-| `ghg.facility_import` | 导入设施边界元数据（id/name/site/region） | R1 local write |
-| `ghg.ingest` | 导入用电 CSV（`date`/`month` + `kwh`）；拒绝 MWh 与单位不一致 | R1 local write |
-| `ghg.ingest_pdf` | 从文本型 PDF 提取日期/kWh 行；无 OCR、不处理扫描件 | R1 local write |
-| `ghg.match_factor` | 返回生效的用电地点因子及其公开来源、单位 | R0 |
-| `ghg.factor_import` | 导入带版本的公开/合成因子 | R1 local write |
-| `ghg.scope_import` | 为部分 ESRS 包导入公开/合成的 Scope 1/3 数值 | R1 local write |
-| `ghg.calculate` | 把 kWh 乘因子（默认或导入）写成 tCO2e 明细行 | R1 local write |
-| `ghg.verify_row` | 重算全部明细行并返回不一致项/差异 | R1 local write |
-| `ghg.export_workpaper` | 导出 3 sheet xlsx：Facilities / Activities / Emissions | R1 local write |
-| `ghg.export_esrs` | 导出部分 ESRS E1 CSV 摘要；非鉴证级 | R1 local write |
-| `ghg.export_esrs_pack` | 导出 4 sheet 的部分 ESRS E1 工作簿 | R1 local write |
-| `ghg.period_coverage` | 报某报告年的覆盖/缺失月份、行数、kWh 与 tCO2e | R0 |
-| `ghg.scope3_summary` | 按十五类汇总 Scope 3，并给出类别/数值问题 | R0 |
+| `ghg_facility_import` | 导入设施边界元数据（id/name/site/region） | R1 local write |
+| `ghg_ingest` | 导入用电 CSV（`date`/`month` + `kwh`）；拒绝 MWh 与单位不一致 | R1 local write |
+| `ghg_ingest_pdf` | 从文本型 PDF 提取日期/kWh 行；无 OCR、不处理扫描件 | R1 local write |
+| `ghg_match_factor` | 返回生效的用电地点因子及其公开来源、单位 | R0 |
+| `ghg_factor_import` | 导入带版本的公开/合成因子 | R1 local write |
+| `ghg_scope_import` | 为部分 ESRS 包导入公开/合成的 Scope 1/3 数值 | R1 local write |
+| `ghg_calculate` | 把 kWh 乘因子（默认或导入）写成 tCO2e 明细行 | R1 local write |
+| `ghg_verify_row` | 重算全部明细行并返回不一致项/差异 | R1 local write |
+| `ghg_export_workpaper` | 导出 3 sheet xlsx：Facilities / Activities / Emissions | R1 local write |
+| `ghg_export_esrs` | 导出部分 ESRS E1 CSV 摘要；非鉴证级 | R1 local write |
+| `ghg_export_esrs_pack` | 导出 4 sheet 的部分 ESRS E1 工作簿 | R1 local write |
+| `ghg_period_coverage` | 报某报告年的覆盖/缺失月份、行数、kWh 与 tCO2e | R0 |
+| `ghg_scope3_summary` | 按十五类汇总 Scope 3，并给出类别/数值问题 | R0 |
 
 R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 
@@ -157,7 +157,7 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 | `DSH_HOME` | 未设置 | 宿主 home；决定默认数据根目录 |
 | 导出目录 | `<数据根目录>/exports` | 底稿、ESRS 包与 ESRS CSV 的落点；文件名与路径由 `safeExportPath` 限制 |
 | `period` | 必填，`YYYY-MM` | 导入/计算/导出所属报告期 |
-| `factor_id` | `electricity-location-cn-2022-v1` | 计算因子；缺省用内置公开电网因子，或先用 `ghg.factor_import` 导入 |
+| `factor_id` | `electricity-location-cn-2022-v1` | 计算因子；缺省用内置公开电网因子，或先用 `ghg_factor_import` 导入 |
 | CSV 行数上限 | 50,000 | 超过即 `E_GHG_BILL_INCOMPLETE`，在文件载入前拒绝 |
 | 设施编号 | 字母、数字、`.`、`_`、`-` | 导出文件名由它拼出；含 `/`、空格、`..` 会被 `E_GHG_PATH_INVALID` 拒绝 |
 
@@ -212,14 +212,14 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 <details>
 <summary>能处理扫描件或图片型 PDF 吗？</summary>
 
-不能。`ghg.ingest_pdf` 只抽文本型 PDF 的文字层，不跑 OCR；扫描件请先转成 CSV（`date,kwh`）再走 `ghg.ingest`，本包不假装识别。
+不能。`ghg_ingest_pdf` 只抽文本型 PDF 的文字层，不跑 OCR；扫描件请先转成 CSV（`date,kwh`）再走 `ghg_ingest`，本包不假装识别。
 
 </details>
 
 <details>
 <summary>结果对不上或复算有差异怎么办？</summary>
 
-先看 `ghg.verify_row` 的 `mismatches` 与 `recalc_diff`：折算公式固定为 `kWh × factor_value_kg_per_kwh ÷ 1000`，差异通常来自导入后换了因子却未重算。重跑 `ghg.calculate` 生成新明细行，再跑一次 `ghg.verify_row`；仍不一致会报 `E_GHG_RECALC_MISMATCH` 并指向上述动作。整条链路可用 `node samples/quickstart/run.mjs --check` 对照金标。
+先看 `ghg_verify_row` 的 `mismatches` 与 `recalc_diff`：折算公式固定为 `kWh × factor_value_kg_per_kwh ÷ 1000`，差异通常来自导入后换了因子却未重算。重跑 `ghg_calculate` 生成新明细行，再跑一次 `ghg_verify_row`；仍不一致会报 `E_GHG_RECALC_MISMATCH` 并指向上述动作。整条链路可用 `node samples/quickstart/run.mjs --check` 对照金标。
 
 </details>
 
@@ -249,8 +249,8 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 ## 已知限制
 
 - **alpha / partial / not counted。** 没有客户证据、客户数据或生产可用声明；`EVIDENCE.md` 明确客户证据永久不在范围内，`PARK.md` 仅作历史记录。
-- **只算 Scope 2。** ESRS E1 包是 partial：Scope 1/3 只有用 `ghg.scope_import` 导入公开/合成数值时才出现在包里，否则写 `not in boundary`；输出非鉴证级。
-- **默认因子是公开参考值。** `electricity-location-cn-2022-v1` = 0.5703 kgCO2e/kWh（2022 年中国电网平均，非鉴证级）；不直连电网或 ERP，自定义因子需先用 `ghg.factor_import` 手工导入。
+- **只算 Scope 2。** ESRS E1 包是 partial：Scope 1/3 只有用 `ghg_scope_import` 导入公开/合成数值时才出现在包里，否则写 `not in boundary`；输出非鉴证级。
+- **默认因子是公开参考值。** `electricity-location-cn-2022-v1` = 0.5703 kgCO2e/kWh（2022 年中国电网平均，非鉴证级）；不直连电网或 ERP，自定义因子需先用 `ghg_factor_import` 手工导入。
 - **无 OCR。** 只支持文本型 PDF；扫描件、图片型 PDF 不支持。
 - **CSV 严格。** 表头必须有 `date`（或 `month`）与 `kwh`，列宽一致，日期为 `YYYY-MM` 或 `YYYY-MM-DD` 且在所选 `period` 内，电量为非负 kWh，单批 ≤ 50,000 行；MWh 不自动换算，坏行不跳过。
 - **需要宿主服务。** 插件 `inject` 了 `tools` 与 `storageDomain`；bare profile 不组合 storage 时不会 apply。
@@ -262,12 +262,12 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 
 按源码核对（`src/plugin/index.ts`、`src/plugin/tools.ts`、`src/plugin/storage.ts`），本插件与命令、工具、slot、HTTP 路由、storage 域均无冲突面：
 
-- **工具名带命名空间。** 13 个工具全部以 `ghg.` 开头，不占用内置工具或其他插件的裸名。
+- **工具名带命名空间。** 13 个工具全部以 `ghg_` 开头，不占用内置工具或其他插件的裸名。
 - **只消费、不提供服务。** `inject` 只有 `['tools', 'storageDomain']`；不注册命令、客户端 slot、`webServer` 前缀或服务键。
 - **独立 storage 域。** 只用自建 `ghg` v1 域的五张表，不读写其他域。
 - **无全局改写。** 不改原型、不改写 `process.env`、不替换全局 fetch。
 - **导出不外溢。** 所有写文件都经 `safeExportPath` 限制在自己的 `exports/`。
-- **只读工具可重入。** `ghg.match_factor`、`ghg.period_coverage`、`ghg.scope3_summary` 不写状态，可安全重复调用。
+- **只读工具可重入。** `ghg_match_factor`、`ghg_period_coverage`、`ghg_scope3_summary` 不写状态，可安全重复调用。
 
 ## 兼容性
 
@@ -294,12 +294,12 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # 27 项测试
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # 28 项测试
 node samples/quickstart/run.mjs --check                  # 金标复跑
 pnpm run gate:sku02                                      # 验收门禁（写 evidence/）
 ```
 
-当前版本 `0.1.1`。
+当前版本 `0.2.0`。
 
 目录布局：
 

@@ -103,7 +103,7 @@ HERO = {
         sub="CSV / 文本 PDF → 本地折算 → 3+4 表工作簿",
         meta="R0 只读 / R1 本地写 · 无网络 · 不调模型",
         foot="Apache-2.0 · PerryLink DSH plugin family",
-        foot2="13 个 ghg.* 工具 · storage domain ghg v1 · v0.1.1",
+        foot2="13 个 ghg_* 工具 · storage domain ghg v1 · v0.2.0",
         card_kicker="SCOPE 2 · LOCATION-BASED",
         card_meta="CN-SUZ-01 · 2026",
         card_title="12 期电费，逐行折算",
@@ -129,7 +129,7 @@ HERO = {
         sub="CSV / text PDF → local calc → 3 + 4 sheet xlsx",
         meta="R0 read-only / R1 local write · no network · no model",
         foot="Apache-2.0 · PerryLink DSH plugin family",
-        foot2="13 ghg.* tools · storage domain ghg v1 · v0.1.1",
+        foot2="13 ghg_* tools · storage domain ghg v1 · v0.2.0",
         card_kicker="SCOPE 2 · LOCATION-BASED",
         card_meta="CN-SUZ-01 · 2026",
         card_title="12 monthly bills, line by line",
@@ -626,7 +626,7 @@ def flow_svg(skin_name):
 
     # footer rules
     t(44, 646, "ingest_pdf: text PDF only, no OCR · storage domain ghg v1 "
-      "(5 tables) · 13 ghg.* tools", 13, "sub", MONO)
+      "(5 tables) · 13 ghg_* tools", 13, "sub", MONO)
 
     p.append('</svg>')
 
