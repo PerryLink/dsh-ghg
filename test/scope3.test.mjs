@@ -14,7 +14,7 @@ test('the standard has exactly fifteen categories', () => {
 })
 
 test('rows are summed per category and ordered by number', async () => {
-  const r = await tools['ghg.scope3_summary'].execute({ rows: [
+  const r = await tools['ghg_scope3_summary'].execute({ rows: [
     { category: 6, tco2e: 12.5 },
     { category: 1, tco2e: 100 },
     { category: 6, tco2e: 2.5 },
@@ -28,7 +28,7 @@ test('rows are summed per category and ordered by number', async () => {
 })
 
 test('out-of-range categories and negative values are reported, not silently dropped', async () => {
-  const r = await tools['ghg.scope3_summary'].execute({ rows: [
+  const r = await tools['ghg_scope3_summary'].execute({ rows: [
     { category: 16, tco2e: 1 },
     { category: 0, tco2e: 1 },
     { category: 3, tco2e: -5 },

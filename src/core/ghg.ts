@@ -50,12 +50,12 @@ export type GhgErrorCode =
 
 /** User-facing wording: one plain sentence, the code, then exactly one next action. */
 const GHG_HUMAN: Record<GhgErrorCode, { text: string; next: string }> = {
-  E_GHG_BOUNDARY_MISSING: { text: '还没有设好这家工厂的核算边界', next: '先用 ghg.facility_import 导入工厂编号、名称、站点和区域' },
+  E_GHG_BOUNDARY_MISSING: { text: '还没有设好这家工厂的核算边界', next: '先用 ghg_facility_import 导入工厂编号、名称、站点和区域' },
   E_GHG_UNIT_MISMATCH: { text: '电量单位不是 kWh，或数值读不出来', next: '把这一列改成 kWh 数值（例如 1200），不要写 1.2 MWh' },
   E_GHG_BILL_INCOMPLETE: { text: '这张电费表缺行或缺列，读不完整', next: '确认表头有 date（或 month）和 kwh，每行列数一致，日期落在 reporting period 内' },
-  E_GHG_FACILITY_NOT_FOUND: { text: '找不到这家工厂的编号', next: '先用 ghg.facility_import 导入，再用返回的 facility_id' },
-  E_GHG_FACTOR_UNRESOLVED: { text: '这个排放因子找不到', next: '先用 ghg.factor_import 导入因子，或去掉 factor_id 改用默认电网因子' },
-  E_GHG_RECALC_MISMATCH: { text: '逐行复算和存储的排放值对不上', next: '重新跑 ghg.calculate 生成排放行，再跑一次 ghg.verify_row' },
+  E_GHG_FACILITY_NOT_FOUND: { text: '找不到这家工厂的编号', next: '先用 ghg_facility_import 导入，再用返回的 facility_id' },
+  E_GHG_FACTOR_UNRESOLVED: { text: '这个排放因子找不到', next: '先用 ghg_factor_import 导入因子，或去掉 factor_id 改用默认电网因子' },
+  E_GHG_RECALC_MISMATCH: { text: '逐行复算和存储的排放值对不上', next: '重新跑 ghg_calculate 生成排放行，再跑一次 ghg_verify_row' },
   E_GHG_EXPORT_FAILED: { text: '底稿或 ESRS 包导出失败', next: '确认 $DSH_HOME/storages/dsh-ghg 可写、磁盘还有空间，再重试' },
   E_GHG_PATH_INVALID: { text: '导出文件名不合法', next: '设施编号只用字母、数字、下划线和连字符' },
   E_GHG_PATH_NOT_ALLOWED: { text: '导出路径跑到允许目录之外了', next: '把设施编号里的斜杠和点点去掉，再导出' },

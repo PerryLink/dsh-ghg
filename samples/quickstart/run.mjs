@@ -66,7 +66,7 @@ async function run() {
     }).map((tool) => [tool.name, tool]))
     const call = { callId: 'quickstart' }
 
-    await tools['ghg.facility_import'].execute({ facilities }, call)
+    await tools['ghg_facility_import'].execute({ facilities }, call)
 
     let ingestedRows = 0
     let skipped = 0
@@ -77,25 +77,25 @@ async function run() {
     const mismatches = []
     for (const period of months) {
       const csvText = ['date,kwh', ...byMonth.get(period).map((row) => `${row.date},${row.kwh}`)].join('\n')
-      const ingest = await tools['ghg.ingest'].execute({ facility_id: facilityId, period, csv_text: csvText }, call)
+      const ingest = await tools['ghg_ingest'].execute({ facility_id: facilityId, period, csv_text: csvText }, call)
       ingestedRows += ingest.rows
       skipped += ingest.skipped
-      const calculated = await tools['ghg.calculate'].execute({ facility_id: facilityId, period }, call)
+      const calculated = await tools['ghg_calculate'].execute({ facility_id: facilityId, period }, call)
       lines += calculated.lines
       totalTco2e += calculated.total_tco2e
-      const verified = await tools['ghg.verify_row'].execute({ facility_id: facilityId, period }, call)
+      const verified = await tools['ghg_verify_row'].execute({ facility_id: facilityId, period }, call)
       checked += verified.checked
       recalcDiff += verified.recalc_diff
       mismatches.push(...verified.mismatches)
     }
 
     const lastMonth = months[months.length - 1]
-    await tools['ghg.scope_import'].execute({ period: lastMonth, scope1_tco2e: 1.25, scope3_tco2e: 2.5, source: 'synthetic' }, call)
-    const workpaper = await tools['ghg.export_workpaper'].execute({ facility_id: facilityId, period: lastMonth }, call)
-    const pack = await tools['ghg.export_esrs_pack'].execute({ period: lastMonth }, call)
-    const coverage = await tools['ghg.period_coverage'].execute({ year: '2026' }, call)
-    const scope3 = await tools['ghg.scope3_summary'].execute({ rows: scope3Rows }, call)
-    const factor = await tools['ghg.match_factor'].execute({}, call)
+    await tools['ghg_scope_import'].execute({ period: lastMonth, scope1_tco2e: 1.25, scope3_tco2e: 2.5, source: 'synthetic' }, call)
+    const workpaper = await tools['ghg_export_workpaper'].execute({ facility_id: facilityId, period: lastMonth }, call)
+    const pack = await tools['ghg_export_esrs_pack'].execute({ period: lastMonth }, call)
+    const coverage = await tools['ghg_period_coverage'].execute({ year: '2026' }, call)
+    const scope3 = await tools['ghg_scope3_summary'].execute({ rows: scope3Rows }, call)
+    const factor = await tools['ghg_match_factor'].execute({}, call)
 
     return {
       sample: 'samples/quickstart/input/electricity-2026.csv',

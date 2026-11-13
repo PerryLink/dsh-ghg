@@ -7,7 +7,7 @@
 
 - **症状**：`这张电费表缺行或缺列，读不完整（E_GHG_BILL_INCOMPLETE）｜下一步：确认表头有 date（或 month）和 kwh，每行列数一致，日期落在 reporting period 内`
 - **原因**：表头被改成中文；某行少一个逗号；日期不在所选月份（例如把 7 月的单子写进了 2026-06）。
-- **动作**：表头保留 `date,kwh`；每行两列；`period` 与行内日期同月；再跑 `ghg.ingest`。
+- **动作**：表头保留 `date,kwh`；每行两列；`period` 与行内日期同月；再跑 `ghg_ingest`。
 
 ## 2. 电量单位不是 kWh（E_GHG_UNIT_MISMATCH）
 
@@ -17,9 +17,9 @@
 
 ## 3. 找不到工厂编号或排放因子（E_GHG_FACILITY_NOT_FOUND / E_GHG_FACTOR_UNRESOLVED）
 
-- **症状**：`找不到这家工厂的编号（E_GHG_FACILITY_NOT_FOUND）｜下一步：先用 ghg.facility_import 导入，再用返回的 facility_id`
-- **原因**：`facility_id` 拼错，或在新的空库里直接跑 `ghg.ingest`。
-- **动作**：先 `ghg.facility_import` 并记下返回的 `facility_ids`；自定义因子同理，先 `ghg.factor_import`。
+- **症状**：`找不到这家工厂的编号（E_GHG_FACILITY_NOT_FOUND）｜下一步：先用 ghg_facility_import 导入，再用返回的 facility_id`
+- **原因**：`facility_id` 拼错，或在新的空库里直接跑 `ghg_ingest`。
+- **动作**：先 `ghg_facility_import` 并记下返回的 `facility_ids`；自定义因子同理，先 `ghg_factor_import`。
 
 ## 4. 导出被拒（E_GHG_PATH_INVALID / E_GHG_PATH_NOT_ALLOWED）
 

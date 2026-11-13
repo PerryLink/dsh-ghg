@@ -145,5 +145,5 @@
 </g>
 <text x="712" y="596" fill="#8496f5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="start">READ-ONLY METERS · R0</text>
 <text x="712" y="615" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="400" text-anchor="start">coverage 12/12 · scope3 6/15 · 2 issues</text>
-<text x="44" y="646" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="400" text-anchor="start">ingest_pdf: text PDF only, no OCR · storage domain ghg v1 (5 tables) · 13 ghg.* tools</text>
+<text x="44" y="646" fill="#a8b1c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="400" text-anchor="start">ingest_pdf: text PDF only, no OCR · storage domain ghg v1 (5 tables) · 13 ghg_* tools</text>
 </svg>

@@ -60,7 +60,7 @@ test('the workpaper tool refuses a traversal facility id', async () => {
     const tools = createTools({ facilities: new T(), activities: new T(), lines: new T(), baseDir: path.join(dir, 'store') })
     const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
     const exec = { callId: 'path' }
-    await by['ghg.facility_import'].execute({ facilities: [{ facility_id: '../evil', name: 'x' }] }, exec)
-    await assert.rejects(() => by['ghg.export_workpaper'].execute({ facility_id: '../evil', period: '2026-01' }, exec), /E_GHG_PATH_INVALID/)
+    await by['ghg_facility_import'].execute({ facilities: [{ facility_id: '../evil', name: 'x' }] }, exec)
+    await assert.rejects(() => by['ghg_export_workpaper'].execute({ facility_id: '../evil', period: '2026-01' }, exec), /E_GHG_PATH_INVALID/)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
