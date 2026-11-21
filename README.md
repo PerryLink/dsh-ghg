@@ -147,6 +147,11 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 
 *截图是 `node samples/quickstart/run.mjs --check` 的真实捕获（2026-11-02），内容与金标一致；公开 MIT 日粒度样例在 `fixtures/public/mit/energy_daily.csv`（含 `SOURCE.md` 与上游 `LICENSE`）。*
 
+![dsh-ghg quickstart 真实运行输出：12 个月 1,410,000 kWh → 804.123 tCO2e，逐行复算 0 差异](docs/assets/dsh-ghg-demo.gif)
+
+*同一段真实运行的动图版本。*
+
+
 ## 配置
 
 本插件没有 Schemastery `Config` 字段，`cordis.patch.yml` 只插入一行；可调项是环境变量与工具参数。

@@ -147,6 +147,11 @@ A aceitação está em `ACCEPTANCE.csv`: 11 verificações públicas/sintéticas
 
 *A captura é a execução real de `node samples/quickstart/run.mjs --check` (2026-11-02) e coincide com o arquivo dourado; a amostra pública diária do MIT fica em `fixtures/public/mit/energy_daily.csv` (com `SOURCE.md` e a `LICENSE` de origem).*
 
+![Saída real do quickstart do dsh-ghg: 12 meses, 1.410.000 kWh → 804,123 tCO2e, diferença de recálculo zero](docs/assets/dsh-ghg-demo.gif)
+
+*A versão animada da mesma execução.*
+
+
 ## Configuração
 
 O plugin não tem campos `Config` do Schemastery; o `cordis.patch.yml` só insere uma linha. Os ajustes são variáveis de ambiente e argumentos de ferramenta.
