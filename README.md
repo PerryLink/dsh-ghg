@@ -11,6 +11,8 @@
 
 面向 DeepSeek Harness 的本地核算插件：读 CSV 或文本型 PDF 电费单，用公开电网因子算排放，全程不联网、不调用模型、不上传。
 
+最近一次核验：DeepSeek Harness `dsh-v0.2.3-alpha.1`（2026-11-22）。
+
 [安装](#三步上手) · [配置](#配置) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -56,7 +58,7 @@ dsh plugin --profile <name> add dsh-ghg
 1. **安装**（四选一；npm 是推荐通道）：
 
    ```sh
-   # npm（推荐，已发布 0.2.0）
+   # npm（推荐，已发布 0.2.1）
    dsh plugin --profile <name> add dsh-ghg
    # git 通道（跟随 main；lib/ 是构建产物、不入库，需在 checkout 内先 pnpm install && pnpm build）
    dsh plugin --profile <name> add github:PerryLink/dsh-ghg
@@ -150,7 +152,6 @@ R0 = 只读；R1 = 只写本机 storage 与 `exports/`，从不联网。
 ![dsh-ghg quickstart 真实运行输出：12 个月 1,410,000 kWh → 804.123 tCO2e，逐行复算 0 差异](docs/assets/dsh-ghg-demo.gif)
 
 *同一段真实运行的动图版本。*
-
 
 ## 配置
 
@@ -304,7 +305,7 @@ node samples/quickstart/run.mjs --check                  # 金标复跑
 pnpm run gate:sku02                                      # 验收门禁（写 evidence/）
 ```
 
-当前版本 `0.2.0`。
+当前版本 `0.2.1`。
 
 目录布局：
 

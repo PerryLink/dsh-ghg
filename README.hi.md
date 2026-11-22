@@ -11,6 +11,8 @@
 
 DeepSeek Harness के लिए स्थानीय लेखांकन प्लगइन: बिजली का CSV या टेक्स्ट-आधारित PDF पढ़ता है, सार्वजनिक ग्रिड फैक्टर से उत्सर्जन गिनता है, और सब कुछ आपकी मशीन पर रखता है — कोई नेटवर्क नहीं, कोई मॉडल कॉल नहीं, कोई अपलोड नहीं।
 
+अंतिम सत्यापन: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [इंस्टॉल](#तीन-चरणों-में-शुरुआत) · [कॉन्फ़िगरेशन](#कॉन्फ़िगरेशन) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -56,7 +58,7 @@ DSH में आप सीधे कह सकते हैं:
 1. **इंस्टॉल करें** (चार में से कोई एक चैनल; npm अनुशंसित है):
 
    ```sh
-   # npm (अनुशंसित, 0.2.0 प्रकाशित)
+   # npm (अनुशंसित, 0.2.1 प्रकाशित)
    dsh plugin --profile <name> add dsh-ghg
    # git चैनल (main का अनुसरण; lib/ बिल्ड आर्टिफ़ैक्ट है और रेपो में नहीं है, इसलिए checkout में पहले pnpm install && pnpm build चलाएँ)
    dsh plugin --profile <name> add github:PerryLink/dsh-ghg
@@ -150,7 +152,6 @@ R0 = केवल पढ़ना; R1 = केवल स्थानीय स�
 ![dsh-ghg का वास्तविक quickstart आउटपुट: 12 महीने, 1,410,000 kWh → 804.123 tCO2e, पुनर्गणना में शून्य अंतर](docs/assets/dsh-ghg-demo.gif)
 
 *उसी असली रन का एनिमेटेड संस्करण।*
-
 
 ## कॉन्फ़िगरेशन
 
@@ -304,7 +305,7 @@ node samples/quickstart/run.mjs --check                  # गोल्डन �
 pnpm run gate:sku02                                      # स्वीकृति गेट (evidence/ लिखता है)
 ```
 
-वर्तमान संस्करण `0.2.0`।
+वर्तमान संस्करण `0.2.1`।
 
 निर्देशिका संरचना:
 

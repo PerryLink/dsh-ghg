@@ -11,6 +11,8 @@
 
 Um plugin de contabilidade local para o DeepSeek Harness: lê um CSV ou um PDF de texto da conta de luz, calcula as emissões com um fator de rede público e mantém tudo na sua máquina —sem rede, sem chamada ao modelo, sem upload.
 
+Última verificação: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Instalar](#instalação-em-três-passos) · [Configuração](#configuração) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -56,7 +58,7 @@ Dentro do DSH basta dizer:
 1. **Instale** (escolha um dos quatro canais; npm é o recomendado):
 
    ```sh
-   # npm (recomendado, 0.2.0 publicado)
+   # npm (recomendado, 0.2.1 publicado)
    dsh plugin --profile <name> add dsh-ghg
    # canal git (acompanha a main; lib/ é artefato de build e não está no repositório, então rode pnpm install && pnpm build no checkout)
    dsh plugin --profile <name> add github:PerryLink/dsh-ghg
@@ -150,7 +152,6 @@ A aceitação está em `ACCEPTANCE.csv`: 11 verificações públicas/sintéticas
 ![Saída real do quickstart do dsh-ghg: 12 meses, 1.410.000 kWh → 804,123 tCO2e, diferença de recálculo zero](docs/assets/dsh-ghg-demo.gif)
 
 *A versão animada da mesma execução.*
-
 
 ## Configuração
 
@@ -304,7 +305,7 @@ node samples/quickstart/run.mjs --check                  # repetição do arquiv
 pnpm run gate:sku02                                      # portão de aceitação (grava evidence/)
 ```
 
-Versão atual `0.2.0`.
+Versão atual `0.2.1`.
 
 Estrutura de diretórios:
 

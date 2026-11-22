@@ -60,6 +60,10 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-22
+
+- Compatibility: declare DeepSeek Harness 0.2.3-alpha.1 support (>=0.2.3-0 <0.3.0-0 in engines.dsh and every @deepseek-ai/dsh-* peer range) and refresh README verification stamps.
+
 ### Added
 
 - `ghg_period_coverage`: reporting-year completeness check — covered and missing months, row count, kWh and calculated tCO2e. Implemented from the GHG Protocol Scope 2 guidance and the ESRS E1 completeness expectation; no third-party code or fixtures. Verified by `node --test test/ghg.test.mjs` (9/9 pass).
