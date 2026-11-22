@@ -1,6 +1,6 @@
 {
   "name": "dsh-ghg",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Electricity activity ingest, location-based GHG calculation, row verification, workpaper and partial ESRS pack.",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -9,7 +9,8 @@
     ".": {
       "types": "./lib/plugin/index.d.ts",
       "default": "./lib/plugin/index.js"
-    }
+    },
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "lib",
@@ -31,7 +32,8 @@
     "icon.svg",
     "samples",
     "TROUBLESHOOTING.md",
-    "screenshots.json"
+    "screenshots.json",
+    "locale/*.json"
   ],
   "dsh": {
     "bundle": {
@@ -127,5 +129,9 @@
     "@deepseek-ai/dsh-tools": {
       "optional": true
     }
+  },
+  "author": {
+    "name": "PerryLink",
+    "url": "https://github.com/PerryLink"
   }
 }

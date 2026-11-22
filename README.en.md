@@ -305,7 +305,7 @@ node samples/quickstart/run.mjs --check                  # golden re-run
 pnpm run gate:sku02                                      # acceptance gate (writes evidence/)
 ```
 
-Current version `0.2.1`.
+Current version `0.2.2`.
 
 Directory layout:
 

@@ -305,7 +305,7 @@ node samples/quickstart/run.mjs --check                  # 金标复跑
 pnpm run gate:sku02                                      # 验收门禁（写 evidence/）
 ```
 
-当前版本 `0.2.1`。
+当前版本 `0.2.2`。
 
 目录布局：
 
